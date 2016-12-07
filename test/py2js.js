@@ -1,9 +1,36 @@
+//12.06 updated by Nie Xiaotao,3130104419
 // Python to Javascript translation engine
 
-;var __BRYTHON__=__BRYTHON__ ||{};(function($B){
+var debug = true;
 
-var js,$pos,res,$op
-var _b_ = $B.builtins
+var __BRYTHON__=__BRYTHON__ ||{};
+
+(function($B){
+
+    //nxtaddtest
+    var scripts=document.getElementsByTagName('script')
+    var this_url=scripts[scripts.length-1].src
+    var elts=this_url.split('/')
+    elts.pop()
+    var $path=$B.brython_path=elts.join('/')+'/'
+    var $href=$B.script_path=window.location.href
+    var $href_elts=$href.split('/')
+    $href_elts.pop()
+    var $script_dir=$B.script_dir=$href_elts.join('/')
+    $B.$py_module_path={}
+    $B.$py_src={}
+    $B.path=[$path+'Lib',$path+'libs',$script_dir,$path+'Lib/site-packages']
+    $B.$path_hooks=["test","test","test","test","test","test"];
+
+    $B.imported=$B.modules={}
+    // _importlib_module={__class__ : $B.$ModuleDict,__name__ : '_importlib',Loader: Loader,VFSFinder: finder_VFS,StdlibStatic: finder_stdlib_static,ImporterPath: finder_path,VFSPathFinder : vfs_hook,UrlPathFinder: url_hook,optimize_import_for_path : optimize_import_for_path}
+    // _importlib_module.__repr__=_importlib_module.__str__=function(){return "<module '_importlib' (built-in)>"}
+    $B.imported['_importlib']=$B.modules['_importlib']={};
+    $B.bound={}
+
+    var js,$pos,res,$op
+// var _b_ = $B.builtins;
+var _b_ = {};
 
 
 /* 
@@ -7468,8 +7495,11 @@ $B.py2js = function(src, module, locals_id, parent_block_id, line_info){
     }
     
     $B.compile_time += t1-t0
-    
-    return root
+
+    if(debug)console.log("function py2js root:",root);
+
+    return root;
+
 }
 
 function load_scripts(scripts, run_script, onerror){
@@ -7606,7 +7636,9 @@ function brython(options){
     
     // meta_path used in py_import.js
     if ($B.meta_path === undefined) {
-        $B.meta_path = []
+        $B.meta_path = [];
+        //nxtaddtest
+        $B.$meta_path = ['test','test','test','test','test','test'];
     }
 
     // Options passed to brython(), with default values
@@ -7795,7 +7827,7 @@ function brython(options){
             if($err.$py_error===undefined){
                 console.log('Javascript error', $err)
                 //console.log($js)
-                //for(var attr in $err){console.log(attr+': '+$err[attr])}
+               //for(var attr inl $err){console.log(attr+': '+$err[attr])}
                 $err=_b_.RuntimeError($err+'')
             }
 
@@ -7866,6 +7898,8 @@ function brython(options){
 
     if (options.ipy_id === undefined){$B._load_scripts(scripts)}
 
+    //nxtaddtest
+    $B.py2js("","external_script.py","external_script.py",'__builtins__')
     /* Uncomment to check the names added in global Javascript namespace
     var kk1 = Object.keys(window)
     for (var i=0; i < kk1.length; i++){
