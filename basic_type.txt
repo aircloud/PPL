@@ -1,0 +1,6 @@
+//基本数据类型：1：python 关键字：False None True and as assert break class continue def del 
+//  elif else except finally for from global if import in is lambda nonlocal not or pass raise
+//  return try while with yield 
+//  2:number float & int
+//  3:string: begin with _ or ch ,only include number,_ or ch
+//  4:opreator :+,-,*,/,=,(,)
