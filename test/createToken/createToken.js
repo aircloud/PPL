@@ -1,3 +1,9 @@
+function clone(obj){
+    var obj1={}
+    for(var attr in obj){obj1[attr]=obj[attr]}
+    return obj1
+}
+
 function $Node(type){
     this.type = type
     this.children=[]
@@ -222,6 +228,63 @@ function $Node(type){
 
 }
 
+function $NodeCtx(node){
+    // Base class for the context in a node
+    this.node = node
+    node.context = this
+    this.tree = []
+    this.type = 'node'
+
+    var scope = null
+    var tree_node = node
+    while(tree_node.parent && tree_node.parent.type!=='module'){
+        var ntype = tree_node.parent.context.tree[0].type
+
+        var _break_flag=false
+        switch(ntype) {
+            case 'def':
+            case 'class':
+            case 'generator':
+                //if(['def', 'class', 'generator'].indexOf(ntype)>-1){
+                scope = tree_node.parent
+                _break_flag=true
+        }
+        if (_break_flag) break
+
+        tree_node = tree_node.parent
+    }
+    if(scope==null){
+        scope = tree_node.parent || tree_node // module
+    }
+
+    // When a new node is created, a copy of the names currently
+    // bound in the scope is created. It is used in $IdCtx to detect
+    // names that are referenced but not yet bound in the scope
+    // this.node.locals = clone($B.bound[scope.id])
+
+    this.toString = function(){return 'node '+this.tree}
+
+    this.to_js = function(){
+        if(this.js!==undefined){return this.js}
+        this.js_processed=true
+        if(this.tree.length>1){
+            var new_node = new $Node()
+            var ctx = new $NodeCtx(new_node)
+            ctx.tree = [this.tree[1]]
+            new_node.indent = node.indent+4
+            this.tree.pop()
+            node.add(new_node)
+        }
+        if(node.children.length==0){
+            this.js = $to_js(this.tree)+';'
+        }else{
+            this.js = $to_js(this.tree)
+        }
+        return this.js
+    }
+}
+
+
 //src 是需要被处理的python字符串
 function $tokenize(src,module,locals_id,parent_block_id,line_info){
     var br_close = {")":"(","]":"[","}":"{"}
@@ -435,15 +498,15 @@ function $tokenize(src,module,locals_id,parent_block_id,line_info){
             // regexIdentifier is defined in brython_builtins.js. It is a regular
             // expression that matches all the valid Python identifier names,
             // including those in non-latin writings (cf issue #358)
-            if($B.regexIdentifier.exec(car)){
-                name=car // identifier start
-                var p0=pos
-                pos++
-                while(pos<src.length && $B.regexIdentifier.exec(src.substring(p0, pos+1))){
-                    name+=src.charAt(pos)
-                    pos++
-                }
-            }
+            // if($B.regexIdentifier.exec(car)){
+            //     name=car // identifier start
+            //     var p0=pos
+            //     pos++
+            //     while(pos<src.length && $B.regexIdentifier.exec(src.substring(p0, pos+1))){
+            //         name+=src.charAt(pos)
+            //         pos++
+            //     }
+            // }
             if(name){
                 //pos += name.length
                 if(kwdict.indexOf(name)>-1){
@@ -730,7 +793,8 @@ function $tokenize(src,module,locals_id,parent_block_id,line_info){
             pos++
             break
           default:
-            $pos=pos;$_SyntaxError(context,'unknown token ['+car+']')
+            $pos=pos;
+              // $_SyntaxError(context,'unknown token ['+car+']')
         } //switch
     }
 
@@ -743,6 +807,8 @@ function $tokenize(src,module,locals_id,parent_block_id,line_info){
         $pos = pos-1
         $_SyntaxError(context,'expected an indented block',pos)    
     }
-    
+
+    console.log("create token, root:" ,root);
+
     return root
 }

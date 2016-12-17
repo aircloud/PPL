@@ -1,8 +1,3 @@
-/**
- * Created by Xiaotao.Nie on 6/12/2016.
- * All right reserved
- * IF you have any question please email onlythen@yeah.net
- */
 // brython.js brython.info
 // version [3, 3, 0, 'alpha', 0]
 // implementation [3, 3, 0, 'alpha', 0]
@@ -4064,11 +4059,6 @@ __BRYTHON__.builtin_module_names=["posix","sys","errno","time","_ajax","_base64"
         if($B.debug>0){$add_line_num(root,null,module)}
         var t1=new Date().getTime()
         if($B.debug>=2){console.log('module '+module+' translated in '+(t1 - t0)+' ms')}
-
-        //nxt add
-        console.log("function py2js root:",root);
-
-
         $B.compile_time +=t1-t0
         return root}
     function load_scripts(scripts,run_script,onerror){

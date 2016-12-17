@@ -3,31 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>1206test01</title>
-    <script src="external_script.py" type=="text/python"></script>
-    <script src="brpython.js" ></script>
+    <!--<script src="external_script.py" type=="text/python"></script>-->
+    <!--<script src="py2js.js" ></script>-->
+    <script src="createToken/createToken.js"></script>
 </head>
 <body>
 
 <script>
 
-window.onload=function(){
+    window.onload=function(){
 
-      brython();
+//      brython();
 
-//    var lock = true;
-//    var req = new XMLHttpRequest()
-//    req.onreadystatechange = function(){
-//        if(req.status==200&&lock){
-//            lock = false;
-//            $B.py2js("","external_script.py","external_script.py",'__builtins__')
-//        }
-//    };
-//    req.module_name = "external_script.py"
-//    req.open('GET', "./external_script.py", true)
-//    req.send()
+        var lock = true;
+        var req = new XMLHttpRequest();
+        req.onloadend = function (event) {
+//            $tokenize(req.responseText,"module1");
+            //__BRYTHON__.py2js(req.responseText,"external_script.py","external_script.py",'__builtins__');
+        };
+        req.open('GET', "./external_script.py", true)
+        req.send()
 
 
-}
+    }
 
 </script>
 </body>
