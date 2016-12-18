@@ -1,3 +1,9 @@
+*Init the program by AirCloud*
+
+---
+
+注：因为有点复杂，后来也有改动，因此不排除有些错误和说的不清楚的地方，因此如果有哪里没有说清楚，请直接跟我讲。
+
 整个代码段分块解析，块的意思是：
 
 如果是函数块，那么整个函数算一块。
@@ -36,23 +42,24 @@ token ["print",{string:"a string"},{name:a},{name:b},{string:"another string"}]
 ```
 
 * 基本赋值语句（python中变量直接用就行，js在声明的时候要用"var"来声明，我们做的时候要考虑这一点，第一次出现的时候是声明，其他的时候是赋值，你在做的时候要考虑到这一点)
+也就是说，第一次使用这个变量的话要用var，如果不是第一次使用了要用assign。(第二部分要重复声明一遍，这不是重复，是为了和其他赋值方式保持统一统一处理)。
 
 ```
 a = 123;
-token ["var",{name:a},{type:number,value:123}];
+token ["var",{name:a,type:"var"},{type:number,value:123}];
 
 //声明之后然后给它赋值
 a = 456
-token ["assign",{name:a},{type:number,value:456}]
+token ["assign",{name:a,type:"assign"},{type:number,value:456}]
 
 //如果是字符串道理相同：
 
 a = "a string";
-token ["var",{name:a},{type:string,value:"a string"}];
+token ["var",{name:a,type:"var"},{type:string,value:"a string"}];
 
 //声明之后然后给它赋值
 a = "another string"
-token ["assign",{name:a},{type:string,value:"another string"}]
+token ["assign",{name:a,type:"assign"},{type:string,value:"another string"}]
 
 //先赋值成字符串之后变成数字以及反之都是可以的，这里不多举例子了。
 ```
@@ -63,23 +70,40 @@ token ["assign",{name:a},{type:string,value:"another string"}]
 ```
 
 a = 3 + 5 - 6 * 2;
-token ["advanceAssign",{name:a},[["num",3],["binary","+"],["num",5],["binary","-"],["num",6],["binary","*"],["num",2]]]
+token ["advanceAssign",{name:a,type:"assign"},[["num",3],["binary","+"],["num",5],["binary","-"],["num",6],["binary","*"],["num",2]]]
 //请仔细注意，这里的token和前面有所区分
 
 b = 6;
 //这里的token前面写过了，就不重复了
 
 a = b + 2;
-token ["advanceAssign",{name:a},[["name",b],["binary","+"],["num",5]]
+token ["advanceAssign",{name:a,type:"assign"},[["name",b],["binary","+"],["num",5]]
 
 a = 3 * (4 + 5)
-token ["advanceAssign",{name:a},[["num",3],["binary","*"],['bracket',"("],["num",4],["binary","+"],["num",5],['bracket',")"]]]
+token ["advanceAssign",{name:a,type:"assign"},[["num",3],["binary","*"],['bracket',"("],["num",4],["binary","+"],["num",5],['bracket',")"]]]
 //这是一个带括号的，一般也是只会产生小括号，中括号和大括号应该是没有的
 
 ```
 
 * 自增、自减运算符    
 对于i++、i--这种的，实际上是独立的语句块，我们解析的时候，首先把它转化成i=i+1和i=i-1再用上面的规则解析，就不重新定义规则了，这样大家都方便。
+
+* 三目运算符  
+三目运算符通常只有一行，但是也有点复杂，应该这样分：也是一开始一个标志符，之后是被赋值的目标，之后是一个三个元素的数组，三个元素分别是：判断条件、前一个代码块，后一个代码块,这里面的前一个代码块和后一个代码块通常是算式,需要按上面解析语句基本运算的方式去解析。
+
+```
+a = b > 2 ? 3 : 4;
+token ["conditionAssign",{name:a,type:"assign"},[
+ [["name",b],["binary",">"],["num",2]],
+ [
+ 	["num":3]
+ ]
+ [
+ 	["num":4]
+ ]
+]]
+```
+
 
 * 语句块：if else      
 我们的最基本的if else应该是这样的：整个if else语句块虽然占多行，但是应该写在一个token里，这算一整块，解析AST树的时候这也应该在一个节点下面。
@@ -119,7 +143,7 @@ for(i = 0;i<4;i++){
 
 token ["for",
 ["assign",{name:i},{type:number,value:0}],
-[["name",i],["binary","<"],["num",1],
+[["name",i],["binary","<"],["num",1]],
 ["advanceAssign",{name:i},[["name",i],["binary","+"],["num",1]],
 [
 	["print",{string:"abc"}],
@@ -127,6 +151,24 @@ token ["for",
 ]]
 
 ```
+ 
+* 语句块 while循环    
+while循环相比for循环较为简单
+
+```
+while(i<6){
+    i++;
+}
+
+//这里的token有三项内容，分别是"while"标志符，判断条件，默认是一条语句，语句块内容，可能有好多内容...
+
+token ["while",
+[["name",i],["binary","<"],["num",6]],
+[
+ ["advanceAssign",{name:i},[["name",i],["binary","+"],["num",1]]
+]]
+```
+
 
 
 
