@@ -78,6 +78,30 @@ token ["advanceAssign",{name:a},[["num",3],["binary","*"],['bracket',"("],["num"
 
 ```
 
+* 语句块：if else
+
+我们的最基本的if else应该是这样的：整个if else语句块虽然占多行，但是应该写在一个token里，这算一整块，解析AST树的时候这也应该在一个节点下面。
+
+```
+if(a<1){
+    a = 2;
+    a = 3;
+}
+else{
+    a = 0;
+}
+
+//这里的token有四块内容，依次是：标志符"if"，判断的内容，if里面的内容，else里面的内容，if里面的内容和else里的内容实际上比较复杂，因为是一个语句块，之后解析的话可能很多个token组成一个token数组，来表示这个语句块，所以这里面要用一个函数的递归(不明请讲)
+
+token ["if",[["name",1],["binary","<"],["num",1]],
+[
+      ["assign",{name:a},{type:number,value:2}],
+      ["assign",{name:a},{type:number,value:3}]
+],[
+	  ["assign",{name:a},{type:number,value:0}]
+]]
+
+```
 
 
 
