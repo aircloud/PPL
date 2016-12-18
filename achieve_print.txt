@@ -1,0 +1,39 @@
+function tokenizer(input){
+	var reg = new RegExp(input);
+	var current = 0;
+	var tokens = [];
+	var char = input[];
+	while (current < input.length){
+	if (input.match(/^print/g) = ["print"]){
+	tokens.push({
+	type: 'print',
+	value: print
+	});
+	current = input.search(/print/)+5
+	continue;
+	}
+    var WHITESPACE = /\S/;
+    if (WHITESPACE.test(char)){
+    current++;
+    continue;
+    }
+    var Quotation =/\'/;
+    if (Quotation.test(char)){
+    current++;
+    continue;
+    }
+    var String = /[a-zA-Z0-9_]/;
+    if (String.test(char)){
+    var value = '';
+    while (String.test(char)){
+    value += char;
+    char = input[++current]
+    }
+    tokens.push({
+    type: 'string';
+    value :value
+    });
+    continue;
+    }
+    
+}
