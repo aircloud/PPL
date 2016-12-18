@@ -72,7 +72,13 @@ b = 6;
 a = b + 2;
 token ["advanceAssign",{name:a},[["name",b],["binary","+"],["num",5]]
 
+a = 3 * (4 + 5)
+token ["advanceAssign",{name:a},[["num",3],["binary","*"],['bracket',"("],["num",4],["binary","+"],["num",5],['bracket',")"]]]
+//这是一个带括号的，一般也是只会产生小括号，中括号和大括号应该是没有的
+
 ```
+
+
 
 
 
