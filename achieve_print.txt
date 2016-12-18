@@ -9,7 +9,7 @@ function tokenizer(input){
 	type: 'print',
 	value: print
 	});
-	current = input.search(/print/)+5
+	current = input.search(/print/)+5;
 	continue;
 	}
     var WHITESPACE = /\S/;
@@ -27,10 +27,10 @@ function tokenizer(input){
     var value = '';
     while (String.test(char)){
     value += char;
-    char = input[++current]
+    char = input[++current];
     }
     tokens.push({
-    type: 'string';
+    type: 'string',
     value :value
     });
     continue;
