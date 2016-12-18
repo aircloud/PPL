@@ -78,8 +78,10 @@ token ["advanceAssign",{name:a},[["num",3],["binary","*"],['bracket',"("],["num"
 
 ```
 
-* 语句块：if else
+* 自增、自减运算符    
+对于i++、i--这种的，实际上是独立的语句块，我们解析的时候，首先把它转化成i=i+1和i=i-1再用上面的规则解析，就不重新定义规则了，这样大家都方便。
 
+* 语句块：if else      
 我们的最基本的if else应该是这样的：整个if else语句块虽然占多行，但是应该写在一个token里，这算一整块，解析AST树的时候这也应该在一个节点下面。
 
 ```
@@ -93,12 +95,35 @@ else{
 
 //这里的token有四块内容，依次是：标志符"if"，判断的内容，if里面的内容，else里面的内容，if里面的内容和else里的内容实际上比较复杂，因为是一个语句块，之后解析的话可能很多个token组成一个token数组，来表示这个语句块，所以这里面要用一个函数的递归(不明请讲)
 
-token ["if",[["name",1],["binary","<"],["num",1]],
+token ["if",
+[["name",a],["binary","<"],["num",1]],
 [
       ["assign",{name:a},{type:number,value:2}],
       ["assign",{name:a},{type:number,value:3}]
 ],[
 	  ["assign",{name:a},{type:number,value:0}]
+]]
+
+```
+
+* 语句块：for循环    
+for 循环是一个涵盖多行的语句块，也是写在一个大的token里，也可能用到函数递归，甚至for循环里还有if/else等其他语句块。
+
+```
+for(i = 0;i<4;i++){
+    print("abc");
+    print("def");
+}
+
+//这里的token应该有五项内容，分别是：标志符"for“，for循环判断条件里的三块内容[这里我们默认每一个块只有一句话，也就是只有一个token(其实判断语句根本不是一个独立的句子，这里稍微扩展了一下概念)]，语句块内容。
+
+token ["for",
+["assign",{name:i},{type:number,value:0}],
+[["name",i],["binary","<"],["num",1],
+["advanceAssign",{name:i},[["name",i],["binary","+"],["num",1]],
+[
+	["print",{string:"abc"}],
+	["print",{string:"def"}]
 ]]
 
 ```
