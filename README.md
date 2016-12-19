@@ -40,6 +40,10 @@ print "a string",a,b,"another string"
 token ["print",{string:"a string"},{name:a},{name:b},{string:"another string"}]
 
 ```
+---
+
+林远：
+
 
 * 基本赋值语句    
 (python中变量直接用就行，js在声明的时候要用"var"来声明，我们做的时候要考虑这一点，第一次出现的时候是声明，其他的时候是赋值，你在做的时候要考虑到这一点)   
@@ -85,6 +89,7 @@ token ["advanceAssign",{name:a,type:"assign"},[["num",3],["binary","*"],['bracke
 //这是一个带括号的，一般也是只会产生小括号，中括号和大括号应该是没有的
 
 ```
+---
 
 * 自增、自减运算符    
 对于i++、i--这种的，实际上是独立的语句块，我们解析的时候，首先把它转化成i=i+1和i=i-1再用上面的规则解析，就不重新定义规则了，这样大家都方便。
