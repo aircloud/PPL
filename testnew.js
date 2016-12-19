@@ -1,16 +1,16 @@
 function tokenizer(input){
     var current = 0;
     var tokens =[];
-    var patt = new RegExp(input,"g");
+    var patt = new RegExp("print","g");
     var result;
-    if((result=patt.exec(input)==null)){
-        return true;
+    if((result=patt.exec(input))==null){
+        return false;
     }
     else{
-        tokens.push({
-            type:'print',
-            value:'print'
-        })
+        tokens.push(
+        "print"
+
+        )
         current = input.search(/print/)+6;
     }
     while (current<input.length){
@@ -27,10 +27,10 @@ function tokenizer(input){
             var value = '';
 
             value = input.substring(current);
-
+            // 然后我们把类型为 `number` 的 token 放入 `tokens` 数组中。
             tokens.push({
-                type: 'string',
-                value: value
+                string: "a string",
+
             });
         current=input.length;
         }
