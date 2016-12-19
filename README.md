@@ -86,7 +86,7 @@ a = b + 2;
 token ["assign",{name:"a",type:"assign"},[["name",b],["binary","+"],["num",5]]
 
 a = 3 * (4 + 5);
-token ["assign",{name:"a",type:"assign"},[["num",3],["binary","*"],['bracket',"("],["num",4],["binary","+"],["num",5],['bracket',")"]]]
+token ["assign",{name:"a",type:"assign"},[["num",3],["binary","*"],['binary',"("],["num",4],["binary","+"],["num",5],['binary',")"]]]
 //这是一个带括号的，一般也是只会产生小括号，中括号和大括号应该是没有的
 
 ```
