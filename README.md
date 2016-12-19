@@ -51,25 +51,21 @@ token ["print",{string:"a string"},{name:a},{name:b},{string:"another string"}]
 
 ```
 a = 123;
-//token ["var",{name:a,type:"var"},{type:number,value:123}];
-token ["var",{name:a,type:"var"},["num",123]];
+token ["var",{name:"a",type:"var"},["num",123]];
 
 
 //声明之后然后给它赋值
 a = 456
-//token ["assign",{name:a,type:"assign"},{type:number,value:456}]
-token ["assign",{name:a,type:"assign"},["num",456]]
+token ["assign",{name:"a",type:"assign"},["num",456]]
 
 //如果是字符串道理相同：
 
 a = "a string";
-//token ["var",{name:a,type:"var"},{type:string,value:"a string"}];
-token ["assign",{name:a,type:"assign"},["string","a string"]]
+token ["assign",{name:"a",type:"assign"},["string","a string"]]
 
 //声明之后然后给它赋值
 a = "another string"
-//token ["assign",{name:a,type:"assign"},{type:string,value:"another string"}]
-token ["assign",{name:a,type:"assign"},["string","another string"]]
+token ["assign",{name:"a",type:"assign"},["string","another string"]]
 
 //先赋值成字符串之后变成数字以及反之都是可以的，这里不多举例子了。
 ```
@@ -80,17 +76,17 @@ token ["assign",{name:a,type:"assign"},["string","another string"]]
 ```
 
 a = 3 + 5 - 6 * 2;
-token ["advanceAssign",{name:a,type:"assign"},[["num",3],["binary","+"],["num",5],["binary","-"],["num",6],["binary","*"],["num",2]]]
+token ["assign",{name:a,type:"assign"},[["num",3],["binary","+"],["num",5],["binary","-"],["num",6],["binary","*"],["num",2]]]
 //请仔细注意，这里的token和前面有所区分
 
 b = 6;
 //这里的token前面写过了，就不重复了
 
 a = b + 2;
-token ["advanceAssign",{name:a,type:"assign"},[["name",b],["binary","+"],["num",5]]
+token ["assign",{name:"a",type:"assign"},[["name",b],["binary","+"],["num",5]]
 
-a = 3 * (4 + 5)
-token ["advanceAssign",{name:a,type:"assign"},[["num",3],["binary","*"],['bracket',"("],["num",4],["binary","+"],["num",5],['bracket',")"]]]
+a = 3 * (4 + 5);
+token ["assign",{name:"a",type:"assign"},[["num",3],["binary","*"],['bracket',"("],["num",4],["binary","+"],["num",5],['bracket',")"]]]
 //这是一个带括号的，一般也是只会产生小括号，中括号和大括号应该是没有的
 
 ```
@@ -104,7 +100,7 @@ token ["advanceAssign",{name:a,type:"assign"},[["num",3],["binary","*"],['bracke
 
 ```
 a = b > 2 ? 3 : 4;
-token ["conditionAssign",{name:a,type:"assign"},[
+token ["conditionAssign",{name:"a",type:"assign"},[
  [["name",b],["binary",">"],["num",2]],
  [
  	["num":3]
