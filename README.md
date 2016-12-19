@@ -51,20 +51,25 @@ token ["print",{string:"a string"},{name:a},{name:b},{string:"another string"}]
 
 ```
 a = 123;
-token ["var",{name:a,type:"var"},{type:number,value:123}];
+//token ["var",{name:a,type:"var"},{type:number,value:123}];
+token ["var",{name:a,type:"var"},["num",123]];
+
 
 //声明之后然后给它赋值
 a = 456
-token ["assign",{name:a,type:"assign"},{type:number,value:456}]
+//token ["assign",{name:a,type:"assign"},{type:number,value:456}]
+token ["assign",{name:a,type:"assign"},["num",456]]
 
 //如果是字符串道理相同：
 
 a = "a string";
-token ["var",{name:a,type:"var"},{type:string,value:"a string"}];
+//token ["var",{name:a,type:"var"},{type:string,value:"a string"}];
+token ["assign",{name:a,type:"assign"},["string","a string"]]
 
 //声明之后然后给它赋值
 a = "another string"
-token ["assign",{name:a,type:"assign"},{type:string,value:"another string"}]
+//token ["assign",{name:a,type:"assign"},{type:string,value:"another string"}]
+token ["assign",{name:a,type:"assign"},["string","another string"]]
 
 //先赋值成字符串之后变成数字以及反之都是可以的，这里不多举例子了。
 ```
