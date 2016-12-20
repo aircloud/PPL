@@ -228,12 +228,12 @@ token [
 ```
 
 f1(3,4,5);
-token ["call",[name,"f1"], [["num",3],["num",4],["num",5]]]
+token ["call",["name","f1"], [["num",3],["num",4],["num",5]]]
 
 var d = f1(3,4,5) + 2;
 token ["advanceAssign",
 {name:"d",type:"var"},
-["call",[name,"f1"], [["num",3],["num",4],["num",5]]],
+["call",["name","f1"], [["num",3],["num",4],["num",5]]],
 ["binary","+"],
 ["num",5]
 ]
@@ -269,12 +269,15 @@ List也是一种数据类型，也是一等公民。
 
 ```
 s = [2,3,4,5];
-token ["assign",{name:"a",type:"assign"},["array",[["num",2],["num",3],["num",4],["num",5]]]]
+token ["assign",{name:"a",type:"assign"},[["array",[["num",2],["num",3],["num",4],["num",5]]]]]
 
 //多维数组是一个比较复杂的内容,这里需要做一个递归判断,下面是一个例子：
 
 s = [[2,3],4,5];
-token ["assign",{name:"a",type:"assign"},["array",[["array",["num",2],["num",3]],["num",4],["num",5]]]]
+token ["assign",{name:"a",type:"assign"},[["array",[["array",["num",2],["num",3]],["num",4],["num",5]]]]]
+//理论上你就直接给每一个元素加上type就好了，然后照着原样输出
+//但是问题来了..如果里面是一个函数呢？是一个表达式呢？或者是一个函数调用?
+//简单的思路：先通过正则判断出[[2,3],4,5];然后判断一下里面是不是有[]如果没有，那么就是一维数组...如果有...切割成三个部分，调用递归...直到是一等公民为止,把它变成自己的类型和自己的值组成的数组...
 
 ```
 
@@ -282,7 +285,7 @@ token ["assign",{name:"a",type:"assign"},["array",[["array",["num",2],["num",3]]
 
 ```
 s = (2,3,4,"example string");
-token ["assign",{name:"a",type:"const"},["array",[["num",2],["num",3],["num",4],["string","example string"]]]]
+token ["assign",{name:"a",type:"const"},[["array",[["num",2],["num",3],["num",4],["string","example string"]]]]]
 
 //备注：这里的type和别的不太一样，因为 tuple 在定义之后就不可更改了,所以不用区分var和assign，并且只有一个const
 
@@ -292,14 +295,19 @@ token ["assign",{name:"a",type:"const"},["array",[["num",2],["num",3],["num",4],
 
 ```
 d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
-token ["assign",{name:"a",type:"assign"},["map",[['Michael', 95],['Bob',75], ['Tracy', 85]]]]
+token ["assign",{name:"d",type:"assign"},[["map",[['Michael', [["num",95]]],['Bob',[["num",75]]], ['Tracy', [["num",85]] ] ] ]	] ]
+
+//再来一个复杂一点的dict
+d = {'Michael': 95, 'Bob': "hello", 'Tracy': somefunc(1,"string0")}
+token ["assign",{name:"d",type:"assign"},[["map",[['Michael', [["num",95]]],['Bob',[["string","hello"]]], ['Tracy', [["call",["name","somefunc"], [["num",1],["string","string0"]]]] ] ] ]] ]
+
 
 ```
 * set
 
 ```
 s = set([1, 2, 3])
-token ["assign",{name:"s",type:"assign"},["set",[["num",1],["num",2],["num",3]]]]
+token ["assign",{name:"s",type:"assign"},[["set",[["num",1],["num",2],["num",3]]]]]
 
 ```
 
