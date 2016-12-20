@@ -153,7 +153,7 @@ for(i = 0;i<4;i++){
 token ["for",
 ["assign",{name:"i"},{type:number,value:0}],
 [["name","i"],["binary","<"],["num",1]],
-["advanceAssign",{name:"i"},[["name","i"],["binary","+"],["num",1]],
+["advanceAssign",{name:"i"},[["name","i"],["binary","+"],["num",1]]],
 [
 	["print",{string:"abc"}],
 	["print",{string:"def"}]
