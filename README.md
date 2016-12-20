@@ -267,8 +267,26 @@ token ["conditionAssign",{name:"a",type:"assign"},[
 
 * List
 一种数据结构，这里我们等同于javascript的Array。
+List也是一种数据类型，也是一等公民。
+
+```
+s = [2,3,4,5];
+token ["assign",{name:"a",type:"assign"},["list",[["num",2],["num",3],["num",4],["num",5]]]]
+
+```
+
 * tuple
+
+```
+s = (2,3,4,"example string");
+token ["assign",{name:"a",type:"assign"},["tuple",[["num",2],["num",3],["num",4],["string","example string"]]]]
+```
+
 * Dict
+
+```
+
+```
 * set
 
 (未完待续...)
