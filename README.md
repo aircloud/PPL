@@ -308,9 +308,8 @@ token ["assign",{name:"s",type:"assign"},["set",[["num",1],["num",2],["num",3]]]
 
 
 ```
+//这一部分暂时还有点混乱...感觉有点复杂，目前正在尝试
 
-
-//list
 
 //访问某一个元素，假设a是一个list
 a[3]
@@ -333,11 +332,24 @@ token ["call",["dot",["name","a"],"somefunc"],[["num",4],["num",5]]]
 a.somefunc(4,otherfunc(6))
 //token 略
 
-//我们支持的list的方法(只是在这里罗列一下，tokens解析的时候不用管)
+//我们支持的方法(只是在这里罗列一下，tokens解析的时候不用管)
+
+//for list:
 append
 insert
 pop//我们的pop不支持添加参数的
+sort
 
+//for tuple:
+//好像没有什么方法
+
+//for dict
+get(somekey)
+pop(somekey)
+
+//for set
+add(somekey)
+remove(somekey)
 
 
 //to be added...
