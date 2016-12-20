@@ -212,7 +212,7 @@ token [
 	["print",{string:"x等于"},{name:"x"}],
 	["var",{name:"x",type:"var"},[["num",2]]],
 	["print",{string:"局部变量x改变为"},{name:"x"}],
-	["return",["name","x"]]
+	["return",[["name","x"]]]
 ]]
 
 //注意：函数里面局部变量的改变，不影响全局变量
