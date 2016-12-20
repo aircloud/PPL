@@ -29,7 +29,7 @@ token ["print",{string:"a string"}]
 ```
 print a;
 
-token ["print",{name:a}]
+token ["print",{name:"a"}]
 
 ```
 
@@ -37,7 +37,7 @@ token ["print",{name:a}]
 
 ```
 print "a string",a,b,"another string"
-token ["print",{string:"a string"},{name:a},{name:b},{string:"another string"}]
+token ["print",{string:"a string"},{name:"a"},{name:"b"},{string:"another string"}]
 
 ```
 ---
@@ -76,14 +76,14 @@ token ["assign",{name:"a",type:"assign"},[["string","another string"]]]
 ```
 
 a = 3 + 5 - 6 * 2;
-token ["assign",{name:a,type:"assign"},[["num",3],["binary","+"],["num",5],["binary","-"],["num",6],["binary","*"],["num",2]]]
+token ["assign",{name:"a",type:"assign"},[["num",3],["binary","+"],["num",5],["binary","-"],["num",6],["binary","*"],["num",2]]]
 //请仔细注意，这里的token和前面有所区分
 
 b = 6;
 //这里的token前面写过了，就不重复了
 
 a = b + 2;
-token ["assign",{name:"a",type:"assign"},[["name",b],["binary","+"],["num",5]]
+token ["assign",{name:"a",type:"assign"},[["name","b"],["binary","+"],["num",5]]
 
 a = 3 * (4 + 5);
 token ["assign",{name:"a",type:"assign"},[["num",3],["binary","*"],['binary',"("],["num",4],["binary","+"],["num",5],['binary',")"]]]
@@ -101,12 +101,12 @@ token ["assign",{name:"a",type:"assign"},[["num",3],["binary","*"],['binary',"("
 ```
 a = b > 2 ? 3 : 4;
 token ["conditionAssign",{name:"a",type:"assign"},[
- [["name",b],["binary",">"],["num",2]],
+ [["name","b"],["binary",">"],["num",2]],
  [
- 	["num":3]
+ 	["num",3]
  ]
  [
- 	["num":4]
+ 	["num",4]
  ]
 ]]
 
@@ -129,12 +129,12 @@ else{
 //这里的token有四块内容，依次是：标志符"if"，判断的内容，if里面的内容，else里面的内容，if里面的内容和else里的内容实际上比较复杂，因为是一个语句块，之后解析的话可能很多个token组成一个token数组，来表示这个语句块，所以这里面要用一个函数的递归(不明请讲)
 
 token ["if",
-[["name",a],["binary","<"],["num",1]],
+[["name","a"],["binary","<"],["num",1]],
 [
-      ["assign",{name:a},{type:number,value:2}],
-      ["assign",{name:a},{type:number,value:3}]
+      ["assign",{name:"a"},{type:number,value:2}],
+      ["assign",{name:"a"},{type:number,value:3}]
 ],[
-	  ["assign",{name:a},{type:number,value:0}]
+	  ["assign",{name:"a"},{type:number,value:0}]
 ]]
 
 ```
@@ -151,9 +151,9 @@ for(i = 0;i<4;i++){
 //这里的token应该有五项内容，分别是：标志符"for“，for循环判断条件里的三块内容[这里我们默认每一个块只有一句话，也就是只有一个token(其实判断语句根本不是一个独立的句子，这里稍微扩展了一下概念)]，语句块内容。
 
 token ["for",
-["assign",{name:i},{type:number,value:0}],
-[["name",i],["binary","<"],["num",1]],
-["advanceAssign",{name:i},[["name",i],["binary","+"],["num",1]],
+["assign",{name:"i"},{type:number,value:0}],
+[["name","i"],["binary","<"],["num",1]],
+["advanceAssign",{name:"i"},[["name","i"],["binary","+"],["num",1]],
 [
 	["print",{string:"abc"}],
 	["print",{string:"def"}]
@@ -172,9 +172,9 @@ while(i<6){
 //这里的token有三项内容，分别是"while"标志符，判断条件，默认是一条语句，语句块内容，可能有好多内容...
 
 token ["while",
-[["name",i],["binary","<"],["num",6]],
+[["name","i"],["binary","<"],["num",6]],
 [
- ["advanceAssign",{name:i},[["name",i],["binary","+"],["num",1]]
+ ["advanceAssign",{name:"i"},[["name","i"],["binary","+"],["num",1]]
 ]]
 ```
 
@@ -197,13 +197,13 @@ def func(x,y):
 
 token [
 "defun",
-{name:func},
+{name:"func"},
 ["x","y"],
 [
-	["print",{string:"x等于"},{name:x}],
-	["var",{name:x,type:"var"},{type:number,value:2}],
-	["print",{string:"局部变量x改变为"},{name:x}],
-	["return",[{name:x}]]
+	["print",{string:"x等于"},{name:"x"}],
+	["var",{name:"x",type:"var"},{type:number,value:2}],
+	["print",{string:"局部变量x改变为"},{name:"x"}],
+	["return",[{name:"x"}]]
 ]]
 
 //注意：函数里面局部变量的改变，不影响全局变量
@@ -228,15 +228,15 @@ name:"f1",
 
 var d = f1(3,4,5) + 2;
 token ["advanceAssign",
-{name:d,type:"var"},
+{name:"d",type:"var"},
 [["call",{call:true,name:"f1",[[type:num,value:3],[type:num,value:4],[type:num,value:5]]}],
 ["binary","+"],
 ["num",5]
 ]
 
 a = b > 2 ? 3 : f1(3,4,5);
-token ["conditionAssign",{name:a,type:"assign"},[
- [["name",b],["binary",">"],["num",2]],
+token ["conditionAssign",{name:"a",type:"assign"},[
+ [["name","b"],["binary",">"],["num",2]],
  [
  	["num":3]
  ]
