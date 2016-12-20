@@ -247,10 +247,10 @@ a = b > 2 ? 3 : f1(3,4,5);
 token ["conditionAssign",{name:"a",type:"assign"},[
  [["name","b"],["binary",">"],["num",2]],
  [
- 	["num":3]
- ]
+ 	["num",3]
+ ],
  [
- 	["call":{call:true,name:"f1",[[type:num,value:3],[type:num,value:4],[type:num,value:5]]}]
+ 	["call", [name,"f1"], [["num",3],["num",5]] ]
  ]
 ]]
 
@@ -258,6 +258,20 @@ token ["conditionAssign",{name:"a",type:"assign"},[
 
 
 <br/>
+<br/>
+
+
+### 以上只是一些最基础的东西，我们要保证上面的代码有足够的鲁棒性、抽象低耦合和高扩展性。
+
+接下来会涉及一些更多的内容(个人认为无论是解析还是构造树难度没有增加，关键是要和上面进行充分融合)
+
+* List
+一种数据结构，这里我们等同于javascript的Array。
+* tuple
+* Dict
+* set
+
+(未完待续...)
 
 ------
 
