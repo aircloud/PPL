@@ -29,7 +29,7 @@ function tokenizer(input){
             value = input.substring(current);
             // 然后我们把类型为 `number` 的 token 放入 `tokens` 数组中。
             tokens.push({
-                string: "a string",
+                string: value,
 
             });
         current=input.length;
