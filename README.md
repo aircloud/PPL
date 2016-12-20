@@ -271,6 +271,8 @@ List也是一种数据类型，也是一等公民。
 s = [2,3,4,5];
 token ["assign",{name:"a",type:"assign"},[["array",[["num",2],["num",3],["num",4],["num",5]]]]]
 
+
+
 //多维数组是一个比较复杂的内容,这里需要做一个递归判断,下面是一个例子：
 
 s = [[2,3],4,5];
@@ -285,7 +287,8 @@ token ["assign",{name:"a",type:"assign"},[["array",[["array",["num",2],["num",3]
 
 ```
 s = (2,3,4,"example string");
-token ["assign",{name:"a",type:"const"},[["array",[["num",2],["num",3],["num",4],["string","example string"]]]]]
+token ["var",{name:"a",type:"const"},[["array",[["num",2],["num",3],["num",4],["string","example string"]]]]]
+//token 的第一个关键字出现assign的话我这边就跑出错误(Aircloud)
 
 //备注：这里的type和别的不太一样，因为 tuple 在定义之后就不可更改了,所以不用区分var和assign，并且只有一个const
 
