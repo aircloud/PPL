@@ -131,10 +131,10 @@ else{
 token ["if",
 [["name","a"],["binary","<"],["num",1]],
 [
-      ["assign",{name:"a"},{type:number,value:2}],
-      ["assign",{name:"a"},{type:number,value:3}]
+      ["assign",{name:"a",type:"assign"},[["num",2]]],
+      ["assign",{name:"a",type:"assign"},[["num",3]]]
 ],[
-	  ["assign",{name:"a"},{type:number,value:0}]
+	  ["assign",{name:"a",type:"assign"},[["num",0]]]
 ]]
 
 ```
@@ -151,9 +151,9 @@ for(i = 0;i<4;i++){
 //这里的token应该有五项内容，分别是：标志符"for“，for循环判断条件里的三块内容[这里我们默认每一个块只有一句话，也就是只有一个token(其实判断语句根本不是一个独立的句子，这里稍微扩展了一下概念)]，语句块内容。
 
 token ["for",
-["assign",{name:"i"},{type:number,value:0}],
+["assign",{name:"i",type:"assign"},[["num",0]]],
 [["name","i"],["binary","<"],["num",1]],
-["advanceAssign",{name:"i"},[["name","i"],["binary","+"],["num",1]]],
+["assign",{name:"i",type:"assign"},[["name","i"],["binary","+"],["num",1]]],
 [
 	["print",{string:"abc"}],
 	["print",{string:"def"}]
@@ -174,7 +174,7 @@ while(i<6){
 token ["while",
 [["name","i"],["binary","<"],["num",6]],
 [
- ["advanceAssign",{name:"i"},[["name","i"],["binary","+"],["num",1]]
+ ["assign",{name:"i",type:"assign"},[["name","i"],["binary","+"],["num",1]]
 ]]
 ```
 
