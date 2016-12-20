@@ -256,8 +256,9 @@ token ["conditionAssign",{name:"a",type:"assign"},[
 
 ```
 
+*以上内容的生成树部分我已经写完并且都进行过测试，上面的大多数错误都已改正(可能有个别没有改的，但是应该不难看出来)--by Aircloud*
 
-<br/>
+---
 <br/>
 
 
@@ -271,7 +272,12 @@ List也是一种数据类型，也是一等公民。
 
 ```
 s = [2,3,4,5];
-token ["assign",{name:"a",type:"assign"},["list",[["num",2],["num",3],["num",4],["num",5]]]]
+token ["assign",{name:"a",type:"assign"},["array",[["num",2],["num",3],["num",4],["num",5]]]]
+
+//多维数组是一个比较复杂的内容,这里需要做一个递归判断,下面是一个例子：
+
+s = [[2,3],4,5];
+token ["assign",{name:"a",type:"assign"},["array",[["array",["num",2],["num",3]],["num",4],["num",5]]]]
 
 ```
 
@@ -279,15 +285,26 @@ token ["assign",{name:"a",type:"assign"},["list",[["num",2],["num",3],["num",4],
 
 ```
 s = (2,3,4,"example string");
-token ["assign",{name:"a",type:"assign"},["tuple",[["num",2],["num",3],["num",4],["string","example string"]]]]
+token ["assign",{name:"a",type:"const"},["array",[["num",2],["num",3],["num",4],["string","example string"]]]]
+
+//备注：这里的type和别的不太一样，因为 tuple 在定义之后就不可更改了,所以不用区分var和assign，并且只有一个const
+
 ```
 
 * Dict
 
 ```
+d = {'Michael': 95, 'Bob': 75, 'Tracy': 85}
+token ["assign",{name:"a",type:"assign"},["map",[['Michael', 95],['Bob',75], ['Tracy', 85]]]]
 
 ```
 * set
+
+```
+s = set([1, 2, 3])
+token ["assign",{name:"s",type:"assign"},["set",[["num",1],["num",2],["num",3]]]]
+
+```
 
 (未完待续...)
 
