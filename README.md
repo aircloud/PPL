@@ -228,17 +228,12 @@ token [
 ```
 
 f1(3,4,5);
-token [
-"call",
-name:"f1",
-[[type:num,value:3],[type:num,value:4],[type:num,value:5]]
-]
-
+token ["call",[name,"f1"], [["num",3],["num",4],["num",5]]]
 
 var d = f1(3,4,5) + 2;
 token ["advanceAssign",
 {name:"d",type:"var"},
-[["call",{call:true,name:"f1",[[type:num,value:3],[type:num,value:4],[type:num,value:5]]}],
+["call",[name,"f1"], [["num",3],["num",4],["num",5]]],
 ["binary","+"],
 ["num",5]
 ]
@@ -265,6 +260,8 @@ token ["conditionAssign",{name:"a",type:"assign"},[
 ### 以上只是一些最基础的东西，我们要保证上面的代码有足够的鲁棒性、抽象低耦合和高扩展性。
 
 接下来会涉及一些更多的内容(个人认为无论是解析还是构造树难度没有增加，关键是要和上面进行充分融合)
+
+*注意：最后生成的token，除了具体字符串里的内容，基本都是小写字符*
 
 * List
 一种数据结构，这里我们等同于javascript的Array。
@@ -306,7 +303,28 @@ token ["assign",{name:"s",type:"assign"},["set",[["num",1],["num",2],["num",3]]]
 
 ```
 
+以上的内容写完了还要涉及到方法的调用的，首先应该允许访问其中的元素，其次我们允许一部分方法的调用，下面是列表：
+
+```
+
+
+//list
+
+//访问某一个元素，假设a是一个list
+a[3]
+token ['sub',["name","a"],["num",3]]
+//这里，我初步的想法是把这个整体看作一等公民
+//备注：我们这里目前不支持负数作为索引
+
+
+
+
+//to be added...
+
+```
+
 (未完待续...)
+
 
 ------
 
