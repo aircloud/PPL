@@ -41,6 +41,8 @@ token ["print",{string:"a string"},{name:"a"},{name:"b"},{string:"another string
 
 ```
 ---
+<div style="background:rgba(0,255,0,0.2)">
+
 
 林远：
 
@@ -48,6 +50,9 @@ token ["print",{string:"a string"},{name:"a"},{name:"b"},{string:"another string
 * 基本赋值语句    
 (python中变量直接用就行，js在声明的时候要用"var"来声明，我们做的时候要考虑这一点，第一次出现的时候是声明，其他的时候是赋值，你在做的时候要考虑到这一点)   
 也就是说，第一次使用这个变量的话要用var，如果不是第一次使用了要用assign。(第二部分要重复声明一遍，这不是重复，是为了和其他赋值方式保持统一统一处理)。
+
+
+
 
 ```
 a = 123;
@@ -90,6 +95,10 @@ token ["assign",{name:"a",type:"assign"},[["num",3],["binary","*"],['binary',"("
 //这是一个带括号的，一般也是只会产生小括号，中括号和大括号应该是没有的
 
 ```
+
+<div style="background:rgba(255,255,255,1)">
+
+
 ---
 
 * 自增、自减运算符    
@@ -174,7 +183,7 @@ while(i<6){
 token ["while",
 [["name","i"],["binary","<"],["num",6]],
 [
- ["assign",{name:"i",type:"assign"},[["name","i"],["binary","+"],["num",1]]
+ ["assign",{name:"i",type:"assign"},[["name","i"],["binary","+"],["num",1]]]
 ]]
 ```
 
