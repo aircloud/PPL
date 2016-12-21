@@ -380,6 +380,10 @@ remove(somekey)
 数学运算类：
 
 abs(x);
+pow(x, y);
+cmp(x, y)//如果x < y ,返回负数；x == y, 返回0；x > y,返回正数
+
+map(function, iterable, ...) //遍历每个元素，执行function操作
 
 Python元组包含了以下内置函数
 1、cmp(tuple1, tuple2)：比较两个元组元素。
