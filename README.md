@@ -285,6 +285,13 @@ token ["assign",{name:"a",type:"assign"},[["array",[["array",["num",2],["num",3]
 
 * tuple
 
+Python元组包含了以下内置函数
+1、cmp(tuple1, tuple2)：比较两个元组元素。
+2、len(tuple)：计算元组元素个数。
+3、max(tuple)：返回元组中元素最大值。
+4、min(tuple)：返回元组中元素最小值。
+5、tuple(seq)：将列表转换为元组。
+
 ```
 s = (2,3,4,"example string");
 token ["var",{name:"a",type:"const"},[["array",[["num",2],["num",3],["num",4],["string","example string"]]]]]
