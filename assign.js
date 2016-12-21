@@ -89,6 +89,43 @@ function tokenizer(input){
     }
     //处理print
     else if(words[0] == "print"){
+        
+        var current = 0;
+
+        tokens.push(
+            "print"
+
+        )
+        current = 6;
+        while (current<input.length){
+            var char = input[current];
+            var WHITESPACE = /\s/;
+            if (WHITESPACE.test(char)) {
+                current++;
+                continue;
+            }
+            var remainString = input.substring(current)
+
+            strs = remainString.split(",");
+            var re = /^\"/
+            for(i=0;i<strs.length;i++){
+                if (strs[i].match(re)!=null){
+
+                    value =strs[i].replace(/^\s+|\s+$/g,"");
+                    tokens.push({
+                        string:value,});
+                }
+                else{
+                    value =strs[i].replace(/^\s+|\s+$/g,"")
+                    tokens.push({
+                        name:value,});
+                }
+            }
+            current=input.length;
+        }
+
+        // 词法分析器的最后我们返回 tokens 数组。
+        return tokens;
         ;
     }
     //处理非块语句,普通的赋值和运算
@@ -165,4 +202,6 @@ console.log(tokenizer("a = b + \"another string\""));
  console.log(tokenizer("a++"));
 console.log(tokenizer("a += 1"));
 //console.log(tokenizer("a = b > 2 ? 3 : 4"));
+console.log(tokenizer("print \"123\",a,b,c,\"1234\", e"));
+console.log("print \"123\"");
 
