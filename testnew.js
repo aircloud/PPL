@@ -8,7 +8,7 @@ function tokenizer(input){
     }
     else{
         tokens.push(
-        "print"
+            "print"
 
         )
         current = input.search(/print/)+6;
@@ -20,24 +20,27 @@ function tokenizer(input){
             current++;
             continue;
         }
-        var STRING = /\S/;
-        if (STRING.test(char)) {
+        var remainString = input.substring(current)
 
-            // 创建一个 `value` 字符串，用于 push 字符。
-            var value = '';
-
-            value = input.substring(current);
-            // 然后我们把类型为 `number` 的 token 放入 `tokens` 数组中。
-            tokens.push({
-                string: value,
-
-            });
-        current=input.length;
+        strs = remainString.split(",");
+        var re = /^\"/
+        for(i=0;i<strs.length;i++){
+            if (strs[i].match(re)!=null){
+                value =strs[i];
+                tokens.push({
+                    string:value,});
+            }
+            else{
+                value=strs[i];
+                tokens.push({
+                    name:value,});
+            }
         }
+        current=input.length;
     }
 
     // 词法分析器的最后我们返回 tokens 数组。
     return tokens;
 }
-console.log(tokenizer("print \"123\""));
+console.log(tokenizer("print \"123\",a,b,c,\"1234\", e"));
 console.log("print \"123\"");
