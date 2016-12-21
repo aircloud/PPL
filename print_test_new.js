@@ -26,12 +26,13 @@ function tokenizer(input){
         var re = /^\"/
         for(i=0;i<strs.length;i++){
             if (strs[i].match(re)!=null){
-                value =strs[i];
+
+                value =strs[i].replace(/^\s+|\s+$/g,"");
                 tokens.push({
                     string:value,});
             }
             else{
-                value=strs[i];
+                value =strs[i].replace(/^\s+|\s+$/g,"")
                 tokens.push({
                     name:value,});
             }
