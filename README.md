@@ -1,5 +1,8 @@
 *Init the program by AirCloud*
 
+
+* NEW:我把自己的nodejs代码放在了demo文件夹下，核心代码在demo/ppl2/control文件夹
+
 ---
 
 注：因为有点复杂，后来也有改动，因此不排除有些错误和说的不清楚的地方，因此如果有哪里没有说清楚，请直接跟我讲。
@@ -285,12 +288,6 @@ token ["assign",{name:"a",type:"assign"},[["array",[["array",["num",2],["num",3]
 
 * tuple
 
-Python元组包含了以下内置函数
-1、cmp(tuple1, tuple2)：比较两个元组元素。
-2、len(tuple)：计算元组元素个数。
-3、max(tuple)：返回元组中元素最大值。
-4、min(tuple)：返回元组中元素最小值。
-5、tuple(seq)：将列表转换为元组。
 
 ```
 s = (2,3,4,"example string");
@@ -374,7 +371,26 @@ remove(somekey)
 
 ```
 
-(未完待续...)
+
+之后我们还要写一些函数，作为lib链接库文件，因为这些函数在python中内置了，我们自己写一遍伪造内置,(这个部分我现在开始整理并且写了)
+
+[注:一些明显和js理念不同的函数或者难以实现的我这里没有写]
+
+```
+数学运算类：
+
+abs(x);
+
+Python元组包含了以下内置函数
+1、cmp(tuple1, tuple2)：比较两个元组元素。
+2、len(tuple)：计算元组元素个数。
+3、max(tuple)：返回元组中元素最大值。
+4、min(tuple)：返回元组中元素最小值。
+5、tuple(seq)：将列表转换为元组。 //这个不太好实现，不实现了
+
+
+```
+
 
 
 ------
