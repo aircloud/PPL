@@ -1,5 +1,10 @@
 //变量类型等各种错误检测
 
+var current = 0;//当前语句行号
+var sentences;
+var allTokens = [];
+
+
 var vars = [];
 var prebinaries = ['++', '--', '+=', '-=', '*=', '/=', '%=', '**=', '//='];
 var brackets = [ '(', ')', '[', ']', '{', '}'];
@@ -26,9 +31,9 @@ function elementClassify(word, set){
 }
 
 //引号里套引号就先不考虑啦
-function tokenizer(input){
+function tokenizer(input, token){
     //预处理
-    input = input.replace(/;*\s*$/, "");
+    input = input.replace(/^\s+|;*\s*$/, "");
     var i, j, word;
     var words = input.split("\"");
     if (words.length % 2 == 0)
@@ -93,14 +98,54 @@ function tokenizer(input){
     //语句处理
     var tokens = [];
     var sets = [];
-
+    var subsets = [];
+    //
     //处理def
     if (words[0] == "def"){
         ;
     }
     //处理if
     else if(words[0] == "if"){
-        ;
+        tokens.push("if");
+        sets = [];
+        if (words[1] != "(" || words[words.length-2] != ")" || words[words.length-1] != ":"){
+            return "Illegal IF";
+        }
+        i = 2;
+        word = words[i];
+        while(word != ")"){
+            elementClassify(word, sets);
+            i++;
+            word = words[i];
+        }
+        tokens.push(sets);
+        sets = [];
+        current ++;
+        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+            tokenizer(sentences[current], sets);
+            current ++;
+        }
+        tokens.push(sets);
+        sets = [];
+        while(sentences[current] != undefined && sentences[current].substr(0,2) == "el"){
+            if ( sentences[current].search(/:\s*$/) == -1){
+                current --;
+                return "Illegal ELSE ";
+            }
+            if (sentences[current].substr(2,2) == "if"){
+                ;//这个是不是还没分好类啊
+            }
+            else if(sentences[current].substr(2,2) == "se"){
+                current++;
+                while(sentences[current] != undefined && sentences[current][0] == "\t"){
+                    tokenizer(sentences[current], sets);
+                    current ++;
+                }
+            }
+            tokens.push(sets);
+            sets = [];
+        }
+        current--;
     }
     //处理for
     else if(words[0] == "for"){
@@ -112,22 +157,19 @@ function tokenizer(input){
     }
     //处理print
     else if(words[0] == "print"){
-
-        var current = 0;
-
+        var wordcurrent = 0;
         tokens.push(
             "print"
-
         )
-        current = 6;
-        while (current<input.length){
-            var char = input[current];
+        wordcurrent = 6;
+        while (wordcurrent<input.length){
+            var char = input[wordcurrent];
             var WHITESPACE = /\s/;
             if (WHITESPACE.test(char)) {
-                current++;
+                wordcurrent++;
                 continue;
             }
-            var remainString = input.substring(current)
+            var remainString = input.substring(wordcurrent)
 
             strs = remainString.split(",");
             var re = /^\"/
@@ -144,11 +186,8 @@ function tokenizer(input){
                         name:value,});
                 }
             }
-            current=input.length;
+            wordcurrent=input.length;
         }
-
-        // 词法分析器的最后我们返回 tokens 数组。
-        return tokens;
     }
     //处理非块语句,普通的赋值和运算
     else {
@@ -161,16 +200,18 @@ function tokenizer(input){
             else {
                 tokens.push({name: words[0], type: "assign"});
             }
+            subsets = [];
             i = 2;
             word = words[i];
             while(word != "?"){
-                elementClassify(word, sets);
+                elementClassify(word, subsets);
                 i++;
                 word = words[i];
             }
+            sets.push(subsets);
+            subsets = [];
             i++;
             word = words[i];
-            var subsets = [];
             while(word != ":"){
                 elementClassify(word, subsets);
                 i++;
@@ -179,7 +220,7 @@ function tokenizer(input){
             sets.push(subsets);
             i++;
             word = words[i];
-            var subsets = []
+            subsets = [];
             for (; i < words.length; i++) {
                 elementClassify(word, subsets);
                 word = words[i];
@@ -220,12 +261,11 @@ function tokenizer(input){
     }
 
     //return words;
-    return tokens;
+    token.push(tokens);
 }
 
-console.log(tokenizer("a = b > 2 ? 3 : 4;   "))
-/*
-code = "a=123;  \n" +
+
+var code = "a=123;  \n" +
     "a = 456\n" +
     "a = \"a string\"\n" +
     "a= \"another string\"\n" +
@@ -237,13 +277,16 @@ code = "a=123;  \n" +
     "a = b + \"another string\"\n" +
     "a++\n" +
     "a += 1\n" +
-    "print \"123\",a,b,c,\"1234\", e";
-var sentences = code.split("\n");
-var current;
-var allTokens = [];
+    "print \"123\",a,b,c,\"1234\", e\n" +
+    "a = b > 2 ? 3 : 4;   ";
+code = "if(a == 1):\n" +
+    "\ta = 2\n" +
+    "\tprint 3\n" +
+    "else:\n" +
+    "\tprint \"else\"";
+sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
-    allTokens.push(tokenizer(sentences[current]));
+    tokenizer(sentences[current], allTokens);
 }
 console.log(allTokens);
-console.log(allTokens[1][2]);
-*/
+//console.log(allTokens[1][2]);
