@@ -6,9 +6,10 @@ var allTokens = [];
 
 
 var vars = [];
+var functionvars = []
 var prebinaries = ['++', '--', '+=', '-=', '*=', '/=', '%=', '**=', '//='];
 var brackets = [ '(', ')', '[', ']', '{', '}'];
-var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':',
+var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':', ',',
     '(', ')', '[', ']', '{', '}',
     '==', '!=', '<>', '>', '<', '>=', '<=', '=',
     '+=', '-=', '*=', '/=', '%=', '**=', '//=', '++', '--',
@@ -31,9 +32,10 @@ function elementClassify(word, set){
 }
 
 //引号里套引号就先不考虑啦
-function tokenizer(input, token){
+function tokenizer(input, token, varRange){
     //预处理
-    input = input.replace(/^\s+|;*\s*$/, "");
+    input = input.replace(/^\s+/, "");
+    input = input.replace(/;*\s*$/, "");
     var i, j, word;
     var words = input.split("\"");
     if (words.length % 2 == 0)
@@ -102,31 +104,52 @@ function tokenizer(input, token){
     //
     //处理def
     if (words[0] == "def"){
-        ;
+        if (sentences[current].search(/:\s*$/) == ":"){
+            return "Illegal DEFUN";
+        }
+        tokens.push("defun");
+        tokens.push({name:words[1]});
+        sets = [];
+        for(i = 3; i < words.length-2; i++){
+            if(words[i] != ',')
+                sets.push(words[i]);
+        }
+        tokens.push(sets);
+        sets = [];
+        //content
+        current++;
+        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+            tokenizer(sentences[current], sets, functionvars);
+            current ++;
+        }
+        tokens.push(sets);
+        sets = [];
     }
     //处理if
     else if(words[0] == "if"){
-        tokens.push("if");
-        sets = [];
-        if (words[1] != "(" || words[words.length-2] != ")" || words[words.length-1] != ":"){
+        if (sentences[current].search(/:\s*$/) == ":"){
             return "Illegal IF";
         }
-        i = 2;
+        tokens.push("if");
+        sets = [];
+        i = 1;
         word = words[i];
-        while(word != ")"){
+        while(word != ":"){
             elementClassify(word, sets);
             i++;
             word = words[i];
         }
         tokens.push(sets);
         sets = [];
+        //content
         current ++;
         while(sentences[current] != undefined && sentences[current][0] == "\t"){
-            tokenizer(sentences[current], sets);
+            tokenizer(sentences[current], sets, vars);
             current ++;
         }
         tokens.push(sets);
         sets = [];
+        //else and elif
         while(sentences[current] != undefined && sentences[current].substr(0,2) == "el"){
             if ( sentences[current].search(/:\s*$/) == -1){
                 current --;
@@ -138,7 +161,7 @@ function tokenizer(input, token){
             else if(sentences[current].substr(2,2) == "se"){
                 current++;
                 while(sentences[current] != undefined && sentences[current][0] == "\t"){
-                    tokenizer(sentences[current], sets);
+                    tokenizer(sentences[current], sets, vars);
                     current ++;
                 }
             }
@@ -147,13 +170,35 @@ function tokenizer(input, token){
         }
         current--;
     }
-    //处理for
+    //处理for【....不对啊，python只有 for in 啊....
     else if(words[0] == "for"){
-        ;
+        tokens.push("for");
+
     }
     //处理while
     else if(words[0] == "while"){
-        ;
+        if (sentences[current].search(/:\s*$/) == ":"){
+            return "Illegal WHILE";
+        }
+        tokens.push("while");
+        sets = [];
+        i = 1;
+        word = words[i];
+        while(word != ":"){
+            elementClassify(word, sets);
+            i++;
+            word = words[i];
+        }
+        tokens.push(sets);
+        sets = [];
+        //content
+        current++;
+        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+            tokenizer(sentences[current], sets, vars);
+            current ++;
+        }
+        tokens.push(sets);
+        sets = [];
     }
     //处理print
     else if(words[0] == "print"){
@@ -189,12 +234,22 @@ function tokenizer(input, token){
             wordcurrent=input.length;
         }
     }
-    //处理非块语句,普通的赋值和运算
+    //处理return
+    else if(words[0] == "return"){
+        sets = []
+        tokens.push("return");
+        for (i = 1; i < words.length; i++) {
+            word = words[i];
+            elementClassify(word, sets);
+        }
+        tokens.push(sets);
+    }
+    //处理非块语句,普通的赋值和运算【处理复杂变量，处理函数调用
     else {
         //处理三目运算符
         if(words.indexOf("?") != -1 && words.indexOf("=") == 1){
             tokens.push("conditionAssign");
-            if (vars.indexOf(words[0]) == -1) {
+            if (varRange.indexOf(words[0]) == -1) {
                 tokens.push({name: words[0], type: "var"});
             }
             else {
@@ -230,8 +285,8 @@ function tokenizer(input, token){
         }
         //普通的单行语句
         else {
-            if (vars.indexOf(words[0]) == -1) {
-                vars.push(words[0]);
+            if (varRange.indexOf(words[0]) == -1) {
+                varRange.push(words[0]);
                 tokens.push("var");
                 tokens.push({name: words[0], type: "var"});
             }
@@ -283,10 +338,18 @@ code = "if(a == 1):\n" +
     "\ta = 2\n" +
     "\tprint 3\n" +
     "else:\n" +
-    "\tprint \"else\"";
+    "\tprint \"else\"\n" +
+    "while a < 1:\n" +
+    "\t b +=1";
+code = "x = 50;\n" +
+    "\tx = 3\n" +
+    "def fun(x,y):\n" +
+    "\tprint \"aaa\"\n" +
+    "\tx = 2\n" +
+    "\treturn x;";
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
-    tokenizer(sentences[current], allTokens);
+    tokenizer(sentences[current], allTokens, vars);
 }
 console.log(allTokens);
-//console.log(allTokens[1][2]);
+console.log(allTokens[2][3][2]);
