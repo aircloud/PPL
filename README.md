@@ -178,7 +178,7 @@ for i in range(100)
    a = 2;
    a = 3;
    
-token["forin",
+token["forin",["name","i"],
 ["call",["name","range"], [["num",100]] ],
 [
   //语句块内容省略
@@ -189,7 +189,7 @@ for i in range(50,100)
    a = 2;
    a = 3;
    
-token["forin",
+token["forin",["name","i"],
 ["call",["name","range"], [["num",50],["num",100]]],
 [
   //语句块内容省略
@@ -199,7 +199,7 @@ token["forin",
 for x in [ 2, 3, 4, 5]:
 	a = a + x;
 
-token 	["forin",
+token 	["forin",["name","x"],
 ["array",[["num",2],["num",3],["num",4],["num",5]]],
 [
   //语句块内容省略
@@ -210,7 +210,7 @@ for x in sv   //注: sv是某一个类似list的变量
    a = a + x;
    //或者 a = a + sv[x]
 
-token 	["forin",
+token 	["forin",["name","x"],
 ["name","sv"],
 [
   //语句块内容省略
