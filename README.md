@@ -171,6 +171,53 @@ token ["for",
 	["print",{string:"def"}]
 ]]
 
+
+增加：实际上python的for循环不应该是这样子，但是我们自己的python版本出于之后的演示方便，应该把上面的实现，然后对于不是上面的，主要有以下几种:
+
+for i in range(100)
+   a = 2;
+   a = 3;
+   
+token["forin",
+["call",["name","range"], [["num",100]] ],
+[
+  //语句块内容省略
+]
+]
+   
+for i in range(50,100)
+   a = 2;
+   a = 3;
+   
+token["forin",
+["call",["name","range"], [["num",50],["num",100]]],
+[
+  //语句块内容省略
+]
+]
+   
+for x in [ 2, 3, 4, 5]:
+	a = a + x;
+
+token 	["forin",
+["array",[["num",2],["num",3],["num",4],["num",5]]],
+[
+  //语句块内容省略
+]
+]
+
+for x in sv   //注: sv是某一个类似list的变量
+   a = a + x;
+   //或者 a = a + sv[x]
+
+token 	["forin",
+["name","sv"],
+[
+  //语句块内容省略
+]
+]
+
+
 ```
  
 * 语句块 while循环    
