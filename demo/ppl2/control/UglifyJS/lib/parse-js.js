@@ -60,6 +60,7 @@
 /* -----[ Tokenizer (constants) ]----- */
 
 var KEYWORDS = array_to_hash([
+    "of",
     "break",
     "case",
     "catch",
@@ -144,6 +145,7 @@ var RE_DEC_NUMBER = /^\d*\.?\d*(?:e[+-]?\d*(?:\d\.?|\.?\d)\d*)?$/i;
 
 var OPERATORS = array_to_hash([
     "in",
+    "of",
     "instanceof",
     "typeof",
     "new",
@@ -934,6 +936,11 @@ function parse($TEXT, exigent_mode, embed_tokens) {
                     croak("Only one variable declaration allowed in for..in loop");
                 return for_in(init);
             }
+            else if(is("operator", "of")){
+                if (init[0] == "var" && init[1].length > 1)
+                    croak("Only one variable declaration allowed in for..of loop");
+                return for_of(init);
+            }
         }
         return regular_for(init);
     };
@@ -953,6 +960,14 @@ function parse($TEXT, exigent_mode, embed_tokens) {
         var obj = expression();
         expect(")");
         return as("for-in", init, lhs, obj, in_loop(statement));
+    };
+
+    function for_of(init) {
+        var lhs = init[0] == "var" ? as("name", init[1][0]) : init;
+        next();
+        var obj = expression();
+        expect(")");
+        return as("for-of", init, lhs, obj, in_loop(statement));
     };
 
     var function_ = function(in_statement) {

@@ -139,6 +139,36 @@ module.exports = function Test(original_Token) {
     //     ["assign",{name:"a",type:"assign"},[['sub',["name","a"],["num",3]]]]
     // ])));
 
+    //测试python for...of...循环:1
+    // console.log(genCoder.gen_code(entrance([
+    //     ["forin",["name","x"],
+    //         ["array",[["num",2],["num",3],["num",4],["num",5]]],
+    //         [
+    //             ["var",{name:"a",type:"var"},[["num",123]]]
+    //         ]
+    //     ]
+    // ])));
 
+    //测试python for...of...循环:2
+    // console.log(genCoder.gen_code(entrance([
+    //     ["forin",["name","i"],
+    //         ["call",["name","range"], [["num",100]] ],
+    //         [
+    //             ["var",{name:"a",type:"var"},[["num",123]]]
+    //         ]
+    //     ]
+    // ])));
+
+    //测试python for...of...循环:3
+    // console.log(genCoder.gen_code(entrance([
+    //     ["forin",["name","x"],
+    //         ["name","sv"],
+    //         [
+    //             ["var",{name:"a",type:"var"},[["num",123]]],
+    //             ["var",{name:"a",type:"var"},[["num",456]]]
+    //
+    //         ]
+    //     ]
+    // ])));
 
 };

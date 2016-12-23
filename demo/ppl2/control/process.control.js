@@ -73,8 +73,13 @@
 //
 // b = a.func2(23);
 
-a=b[5];
+// a=b[5];
 
 // c=b[5]();
+
+
+for(var i of xbb(23,34)){
+    console.log(i);
+}
 
 

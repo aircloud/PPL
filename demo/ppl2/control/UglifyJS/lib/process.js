@@ -1,60 +1,60 @@
 /***********************************************************************
 
-  A JavaScript tokenizer / parser / beautifier / compressor.
+ A JavaScript tokenizer / parser / beautifier / compressor.
 
-  This version is suitable for Node.js.  With minimal changes (the
-  exports stuff) it should work on any JS platform.
+ This version is suitable for Node.js.  With minimal changes (the
+ exports stuff) it should work on any JS platform.
 
-  This file implements some AST processors.  They work on data built
-  by parse-js.
+ This file implements some AST processors.  They work on data built
+ by parse-js.
 
-  Exported functions:
+ Exported functions:
 
-    - ast_mangle(ast, options) -- mangles the variable/function names
-      in the AST.  Returns an AST.
+ - ast_mangle(ast, options) -- mangles the variable/function names
+ in the AST.  Returns an AST.
 
-    - ast_squeeze(ast) -- employs various optimizations to make the
-      final generated code even smaller.  Returns an AST.
+ - ast_squeeze(ast) -- employs various optimizations to make the
+ final generated code even smaller.  Returns an AST.
 
-    - gen_code(ast, options) -- generates JS code from the AST.  Pass
-      true (or an object, see the code for some options) as second
-      argument to get "pretty" (indented) code.
+ - gen_code(ast, options) -- generates JS code from the AST.  Pass
+ true (or an object, see the code for some options) as second
+ argument to get "pretty" (indented) code.
 
-  -------------------------------- (C) ---------------------------------
+ -------------------------------- (C) ---------------------------------
 
-                           Author: Mihai Bazon
-                         <mihai.bazon@gmail.com>
-                       http://mihai.bazon.net/blog
+ Author: Mihai Bazon
+ <mihai.bazon@gmail.com>
+ http://mihai.bazon.net/blog
 
-  Distributed under the BSD license:
+ Distributed under the BSD license:
 
-    Copyright 2010 (c) Mihai Bazon <mihai.bazon@gmail.com>
+ Copyright 2010 (c) Mihai Bazon <mihai.bazon@gmail.com>
 
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
 
-        * Redistributions of source code must retain the above
-          copyright notice, this list of conditions and the following
-          disclaimer.
+ * Redistributions of source code must retain the above
+ copyright notice, this list of conditions and the following
+ disclaimer.
 
-        * Redistributions in binary form must reproduce the above
-          copyright notice, this list of conditions and the following
-          disclaimer in the documentation and/or other materials
-          provided with the distribution.
+ * Redistributions in binary form must reproduce the above
+ copyright notice, this list of conditions and the following
+ disclaimer in the documentation and/or other materials
+ provided with the distribution.
 
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY
-    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
-    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
-    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-    SUCH DAMAGE.
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY
+ EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ SUCH DAMAGE.
 
  ***********************************************************************/
 
@@ -117,7 +117,7 @@ function ast_walker() {
         "switch": function(expr, body) {
             return [ this[0], walk(expr), MAP(body, function(branch){
                 return [ branch[0] ? walk(branch[0]) : null,
-                         MAP(branch[1], walk) ];
+                    MAP(branch[1], walk) ];
             }) ];
         },
         "break": function(label) {
@@ -154,6 +154,9 @@ function ast_walker() {
             return [ this[0], walk(init), walk(cond), walk(step), walk(block) ];
         },
         "for-in": function(vvar, key, hash, block) {
+            return [ this[0], walk(vvar), walk(key), walk(hash), walk(block) ];
+        },
+        "for-of": function(vvar, key, hash, block) {
             return [ this[0], walk(vvar), walk(key), walk(hash), walk(block) ];
         },
         "while": function(cond, block) {
@@ -597,10 +600,10 @@ function ast_mangle(ast, options) {
             // they are not in some block.
             var ast = _lambda.apply(this, arguments);
             switch (w.parent()[0]) {
-              case "toplevel":
-              case "function":
-              case "defun":
-                return MAP.at_top(ast);
+                case "toplevel":
+                case "function":
+                case "defun":
+                    return MAP.at_top(ast);
             }
             return ast;
         },
@@ -621,9 +624,9 @@ function ast_mangle(ast, options) {
         },
         "try": function(t, c, f) {
             return [ this[0],
-                     MAP(t, walk),
-                     c != null ? [ get_mangled(c[0]), MAP(c[1], walk) ] : null,
-                     f != null ? MAP(f, walk) : null ];
+                MAP(t, walk),
+                c != null ? [ get_mangled(c[0]), MAP(c[1], walk) ] : null,
+                f != null ? MAP(f, walk) : null ];
         },
         "toplevel": function(body) {
             var self = this;
@@ -640,15 +643,15 @@ function ast_mangle(ast, options) {
 };
 
 /* -----[
-   - compress foo["bar"] into foo.bar,
-   - remove block brackets {} where possible
-   - join consecutive var declarations
-   - various optimizations for IFs:
-   - if (cond) foo(); else bar();  ==>  cond?foo():bar();
-   - if (cond) foo();  ==>  cond&&foo();
-   - if (foo) return bar(); else return baz();  ==> return foo?bar():baz(); // also for throw
-   - if (foo) return bar(); else something();  ==> {if(foo)return bar();something()}
-   ]----- */
+ - compress foo["bar"] into foo.bar,
+ - remove block brackets {} where possible
+ - join consecutive var declarations
+ - various optimizations for IFs:
+ - if (cond) foo(); else bar();  ==>  cond?foo():bar();
+ - if (cond) foo();  ==>  cond&&foo();
+ - if (foo) return bar(); else return baz();  ==> return foo?bar():baz(); // also for throw
+ - if (foo) return bar(); else something();  ==> {if(foo)return bar();something()}
+ ]----- */
 
 var warn = function(){};
 
@@ -664,37 +667,37 @@ function last_stat(b) {
 
 function aborts(t) {
     if (t) switch (last_stat(t)[0]) {
-      case "return":
-      case "break":
-      case "continue":
-      case "throw":
-        return true;
+        case "return":
+        case "break":
+        case "continue":
+        case "throw":
+            return true;
     }
 };
 
 function boolean_expr(expr) {
     return ( (expr[0] == "unary-prefix"
-              && member(expr[1], [ "!", "delete" ])) ||
+        && member(expr[1], [ "!", "delete" ])) ||
 
-             (expr[0] == "binary"
-              && member(expr[1], [ "in", "instanceof", "==", "!=", "===", "!==", "<", "<=", ">=", ">" ])) ||
+        (expr[0] == "binary"
+        && member(expr[1], [ "in", "instanceof", "==", "!=", "===", "!==", "<", "<=", ">=", ">" ])) ||
 
-             (expr[0] == "binary"
-              && member(expr[1], [ "&&", "||" ])
-              && boolean_expr(expr[2])
-              && boolean_expr(expr[3])) ||
+        (expr[0] == "binary"
+        && member(expr[1], [ "&&", "||" ])
+        && boolean_expr(expr[2])
+        && boolean_expr(expr[3])) ||
 
-             (expr[0] == "conditional"
-              && boolean_expr(expr[2])
-              && boolean_expr(expr[3])) ||
+        (expr[0] == "conditional"
+        && boolean_expr(expr[2])
+        && boolean_expr(expr[3])) ||
 
-             (expr[0] == "assign"
-              && expr[1] === true
-              && boolean_expr(expr[3])) ||
+        (expr[0] == "assign"
+        && expr[1] === true
+        && boolean_expr(expr[3])) ||
 
-             (expr[0] == "seq"
-              && boolean_expr(expr[expr.length - 1]))
-           );
+        (expr[0] == "seq"
+        && boolean_expr(expr[expr.length - 1]))
+    );
 };
 
 function empty(b) {
@@ -703,9 +706,9 @@ function empty(b) {
 
 function is_string(node) {
     return (node[0] == "string" ||
-            node[0] == "unary-prefix" && node[1] == "typeof" ||
-            node[0] == "binary" && node[1] == "+" &&
-            (is_string(node[2]) || is_string(node[3])));
+    node[0] == "unary-prefix" && node[1] == "typeof" ||
+    node[0] == "binary" && node[1] == "+" &&
+    (is_string(node[2]) || is_string(node[3])));
 };
 
 var when_constant = (function(){
@@ -716,53 +719,53 @@ var when_constant = (function(){
     // not constant, it throws $NOT_CONSTANT.
     function evaluate(expr) {
         switch (expr[0]) {
-          case "string":
-          case "num":
-            return expr[1];
-          case "name":
-          case "atom":
-            switch (expr[1]) {
-              case "true": return true;
-              case "false": return false;
-              case "null": return null;
-            }
-            break;
-          case "unary-prefix":
-            switch (expr[1]) {
-              case "!": return !evaluate(expr[2]);
-              case "typeof": return typeof evaluate(expr[2]);
-              case "~": return ~evaluate(expr[2]);
-              case "-": return -evaluate(expr[2]);
-              case "+": return +evaluate(expr[2]);
-            }
-            break;
-          case "binary":
-            var left = expr[2], right = expr[3];
-            switch (expr[1]) {
-              case "&&"         : return evaluate(left) &&         evaluate(right);
-              case "||"         : return evaluate(left) ||         evaluate(right);
-              case "|"          : return evaluate(left) |          evaluate(right);
-              case "&"          : return evaluate(left) &          evaluate(right);
-              case "^"          : return evaluate(left) ^          evaluate(right);
-              case "+"          : return evaluate(left) +          evaluate(right);
-              case "*"          : return evaluate(left) *          evaluate(right);
-              case "/"          : return evaluate(left) /          evaluate(right);
-              case "%"          : return evaluate(left) %          evaluate(right);
-              case "-"          : return evaluate(left) -          evaluate(right);
-              case "<<"         : return evaluate(left) <<         evaluate(right);
-              case ">>"         : return evaluate(left) >>         evaluate(right);
-              case ">>>"        : return evaluate(left) >>>        evaluate(right);
-              case "=="         : return evaluate(left) ==         evaluate(right);
-              case "==="        : return evaluate(left) ===        evaluate(right);
-              case "!="         : return evaluate(left) !=         evaluate(right);
-              case "!=="        : return evaluate(left) !==        evaluate(right);
-              case "<"          : return evaluate(left) <          evaluate(right);
-              case "<="         : return evaluate(left) <=         evaluate(right);
-              case ">"          : return evaluate(left) >          evaluate(right);
-              case ">="         : return evaluate(left) >=         evaluate(right);
-              case "in"         : return evaluate(left) in         evaluate(right);
-              case "instanceof" : return evaluate(left) instanceof evaluate(right);
-            }
+            case "string":
+            case "num":
+                return expr[1];
+            case "name":
+            case "atom":
+                switch (expr[1]) {
+                    case "true": return true;
+                    case "false": return false;
+                    case "null": return null;
+                }
+                break;
+            case "unary-prefix":
+                switch (expr[1]) {
+                    case "!": return !evaluate(expr[2]);
+                    case "typeof": return typeof evaluate(expr[2]);
+                    case "~": return ~evaluate(expr[2]);
+                    case "-": return -evaluate(expr[2]);
+                    case "+": return +evaluate(expr[2]);
+                }
+                break;
+            case "binary":
+                var left = expr[2], right = expr[3];
+                switch (expr[1]) {
+                    case "&&"         : return evaluate(left) &&         evaluate(right);
+                    case "||"         : return evaluate(left) ||         evaluate(right);
+                    case "|"          : return evaluate(left) |          evaluate(right);
+                    case "&"          : return evaluate(left) &          evaluate(right);
+                    case "^"          : return evaluate(left) ^          evaluate(right);
+                    case "+"          : return evaluate(left) +          evaluate(right);
+                    case "*"          : return evaluate(left) *          evaluate(right);
+                    case "/"          : return evaluate(left) /          evaluate(right);
+                    case "%"          : return evaluate(left) %          evaluate(right);
+                    case "-"          : return evaluate(left) -          evaluate(right);
+                    case "<<"         : return evaluate(left) <<         evaluate(right);
+                    case ">>"         : return evaluate(left) >>         evaluate(right);
+                    case ">>>"        : return evaluate(left) >>>        evaluate(right);
+                    case "=="         : return evaluate(left) ==         evaluate(right);
+                    case "==="        : return evaluate(left) ===        evaluate(right);
+                    case "!="         : return evaluate(left) !=         evaluate(right);
+                    case "!=="        : return evaluate(left) !==        evaluate(right);
+                    case "<"          : return evaluate(left) <          evaluate(right);
+                    case "<="         : return evaluate(left) <=         evaluate(right);
+                    case ">"          : return evaluate(left) >          evaluate(right);
+                    case ">="         : return evaluate(left) >=         evaluate(right);
+                    case "in"         : return evaluate(left) in         evaluate(right);
+                    case "instanceof" : return evaluate(left) instanceof evaluate(right);
+                }
         }
         throw $NOT_CONSTANT;
     };
@@ -771,12 +774,12 @@ var when_constant = (function(){
         try {
             var val = evaluate(expr), ast;
             switch (typeof val) {
-              case "string": ast =  [ "string", val ]; break;
-              case "number": ast =  [ "num", val ]; break;
-              case "boolean": ast =  [ "name", String(val) ]; break;
-              default:
-                if (val === null) { ast = [ "atom", "null" ]; break; }
-                throw new Error("Can't handle constant of type: " + (typeof val));
+                case "string": ast =  [ "string", val ]; break;
+                case "number": ast =  [ "num", val ]; break;
+                case "boolean": ast =  [ "name", String(val) ]; break;
+                default:
+                    if (val === null) { ast = [ "atom", "null" ]; break; }
+                    throw new Error("Can't handle constant of type: " + (typeof val));
             }
             return yes.call(expr, ast, val);
         } catch(ex) {
@@ -784,17 +787,17 @@ var when_constant = (function(){
                 if (expr[0] == "binary"
                     && (expr[1] == "===" || expr[1] == "!==")
                     && ((is_string(expr[2]) && is_string(expr[3]))
-                        || (boolean_expr(expr[2]) && boolean_expr(expr[3])))) {
+                    || (boolean_expr(expr[2]) && boolean_expr(expr[3])))) {
                     expr[1] = expr[1].substr(0, 2);
                 }
                 else if (no && expr[0] == "binary"
-                         && (expr[1] == "||" || expr[1] == "&&")) {
+                    && (expr[1] == "||" || expr[1] == "&&")) {
                     // the whole expression is not constant but the lval may be...
                     try {
                         var lval = evaluate(expr[2]);
                         expr = ((expr[1] == "&&" && (lval ? expr[3] : lval))    ||
-                                (expr[1] == "||" && (lval ? lval    : expr[3])) ||
-                                expr);
+                        (expr[1] == "||" && (lval ? lval    : expr[3])) ||
+                        expr);
                     } catch(ex2) {
                         // IGNORE... lval is not constant
                     }
@@ -916,6 +919,7 @@ function for_side_effects(ast, handler) {
         "if": found,
         "for": found,
         "for-in": found,
+        "for-of": found,
         "while": found,
         "do": found,
         "unary-prefix": unary,
@@ -1000,6 +1004,8 @@ function ast_lift_variables(ast) {
         if (ret == null && w.parent()[0] != "for") {
             if (w.parent()[0] == "for-in")
                 return [ "name", defs[0][0] ];
+            else if(w.parent()[0] == "for-of")
+                return [ "name", defs[0][0] ];
             return MAP.skip;
         }
         return [ "stat", ret ];
@@ -1047,31 +1053,31 @@ function squeeze_1(ast, options) {
     function negate(c) {
         var not_c = [ "unary-prefix", "!", c ];
         switch (c[0]) {
-          case "unary-prefix":
-            return c[1] == "!" && boolean_expr(c[2]) ? c[2] : not_c;
-          case "seq":
-            c = slice(c);
-            c[c.length - 1] = negate(c[c.length - 1]);
-            return c;
-          case "conditional":
-            return best_of(not_c, [ "conditional", c[1], negate(c[2]), negate(c[3]) ]);
-          case "binary":
-            var op = c[1], left = c[2], right = c[3];
-            if (!options.keep_comps) switch (op) {
-              case "<="  : return [ "binary", ">", left, right ];
-              case "<"   : return [ "binary", ">=", left, right ];
-              case ">="  : return [ "binary", "<", left, right ];
-              case ">"   : return [ "binary", "<=", left, right ];
-            }
-            switch (op) {
-              case "=="  : return [ "binary", "!=", left, right ];
-              case "!="  : return [ "binary", "==", left, right ];
-              case "===" : return [ "binary", "!==", left, right ];
-              case "!==" : return [ "binary", "===", left, right ];
-              case "&&"  : return best_of(not_c, [ "binary", "||", negate(left), negate(right) ]);
-              case "||"  : return best_of(not_c, [ "binary", "&&", negate(left), negate(right) ]);
-            }
-            break;
+            case "unary-prefix":
+                return c[1] == "!" && boolean_expr(c[2]) ? c[2] : not_c;
+            case "seq":
+                c = slice(c);
+                c[c.length - 1] = negate(c[c.length - 1]);
+                return c;
+            case "conditional":
+                return best_of(not_c, [ "conditional", c[1], negate(c[2]), negate(c[3]) ]);
+            case "binary":
+                var op = c[1], left = c[2], right = c[3];
+                if (!options.keep_comps) switch (op) {
+                    case "<="  : return [ "binary", ">", left, right ];
+                    case "<"   : return [ "binary", ">=", left, right ];
+                    case ">="  : return [ "binary", "<", left, right ];
+                    case ">"   : return [ "binary", "<=", left, right ];
+                }
+                switch (op) {
+                    case "=="  : return [ "binary", "!=", left, right ];
+                    case "!="  : return [ "binary", "==", left, right ];
+                    case "===" : return [ "binary", "!==", left, right ];
+                    case "!==" : return [ "binary", "===", left, right ];
+                    case "&&"  : return best_of(not_c, [ "binary", "||", negate(left), negate(right) ]);
+                    case "||"  : return best_of(not_c, [ "binary", "&&", negate(left), negate(right) ]);
+                }
+                break;
         }
         return not_c;
     };
@@ -1131,7 +1137,7 @@ function squeeze_1(ast, options) {
         statements = (function(a, prev){
             statements.forEach(function(cur){
                 if (prev && ((cur[0] == "var" && prev[0] == "var") ||
-                             (cur[0] == "const" && prev[0] == "const"))) {
+                    (cur[0] == "const" && prev[0] == "const"))) {
                     prev[1] = prev[1].concat(cur[1]);
                 } else {
                     a.push(cur);
@@ -1184,8 +1190,8 @@ function squeeze_1(ast, options) {
                 && a[a.length-1][1])
             {
                 a.splice(a.length - 2, 2,
-                         [ a[a.length-1][0],
-                           [ "seq", a[a.length-2][1], a[a.length-1][1] ]]);
+                    [ a[a.length-1][0],
+                        [ "seq", a[a.length-2][1], a[a.length-1][1] ]]);
             }
             return a;
         })([]);
@@ -1349,14 +1355,14 @@ function squeeze_1(ast, options) {
                 return best_of(walk(c), this);
             }, function no() {
                 return function(){
-                    if(op != "==" && op != "!=") return;
-                    var l = walk(left), r = walk(right);
-                    if(l && l[0] == "unary-prefix" && l[1] == "!" && l[2][0] == "num")
-                        left = ['num', +!l[2][1]];
-                    else if (r && r[0] == "unary-prefix" && r[1] == "!" && r[2][0] == "num")
-                        right = ['num', +!r[2][1]];
-                    return ["binary", op, left, right];
-                }() || this;
+                        if(op != "==" && op != "!=") return;
+                        var l = walk(left), r = walk(right);
+                        if(l && l[0] == "unary-prefix" && l[1] == "!" && l[2][0] == "num")
+                            left = ['num', +!l[2][1]];
+                        else if (r && r[0] == "unary-prefix" && r[1] == "!" && r[2][0] == "num")
+                            right = ['num', +!r[2][1]];
+                        return ["binary", op, left, right];
+                    }() || this;
             });
         },
         "conditional": function(c, t, e) {
@@ -1381,8 +1387,8 @@ function squeeze_1(ast, options) {
         },
         "name": function(name) {
             switch (name) {
-              case "true": return [ "unary-prefix", "!", [ "num", 0 ]];
-              case "false": return [ "unary-prefix", "!", [ "num", 1 ]];
+                case "true": return [ "unary-prefix", "!", [ "num", 0 ]];
+                case "false": return [ "unary-prefix", "!", [ "num", 1 ]];
             }
         },
         "while": _do_while,
@@ -1407,9 +1413,9 @@ function squeeze_1(ast, options) {
         "num": function (num) {
             if (!isFinite(num))
                 return [ "binary", "/", num === 1 / 0
-                         ? [ "num", 1 ] : num === -1 / 0
-                         ? [ "unary-prefix", "-", [ "num", 1 ] ]
-                         : [ "num", 0 ], [ "num", 0 ] ];
+                    ? [ "num", 1 ] : num === -1 / 0
+                    ? [ "unary-prefix", "-", [ "num", 1 ] ]
+                    : [ "num", 0 ], [ "num", 0 ] ];
 
             return [ this[0], num ];
         }
@@ -1464,16 +1470,16 @@ function make_string(str, ascii_only) {
     var dq = 0, sq = 0;
     str = str.replace(/[\\\b\f\n\r\t\x22\x27\u2028\u2029\0]/g, function(s){
         switch (s) {
-          case "\\": return "\\\\";
-          case "\b": return "\\b";
-          case "\f": return "\\f";
-          case "\n": return "\\n";
-          case "\r": return "\\r";
-          case "\u2028": return "\\u2028";
-          case "\u2029": return "\\u2029";
-          case '"': ++dq; return '"';
-          case "'": ++sq; return "'";
-          case "\0": return "\\0";
+            case "\\": return "\\\\";
+            case "\b": return "\\b";
+            case "\f": return "\\f";
+            case "\n": return "\\n";
+            case "\r": return "\\r";
+            case "\u2028": return "\\u2028";
+            case "\u2029": return "\\u2029";
+            case '"': ++dq; return '"';
+            case "'": ++sq; return "'";
+            case "\0": return "\\0";
         }
         return s;
     });
@@ -1490,7 +1496,7 @@ function to_ascii(str) {
     });
 };
 
-var SPLICE_NEEDS_BRACKETS = jsp.array_to_hash([ "if", "while", "do", "for", "for-in", "with" ]);
+var SPLICE_NEEDS_BRACKETS = jsp.array_to_hash([ "if", "while", "do", "for", "for-in","for-of", "with" ]);
 
 function gen_code(ast, options) {
     options = defaults(options, {
@@ -1504,8 +1510,8 @@ function gen_code(ast, options) {
     });
     var beautify = !!options.beautify;
     var indentation = 0,
-    newline = beautify ? "\n" : "",
-    space = beautify ? " " : "";
+        newline = beautify ? "\n" : "",
+        space = beautify ? " " : "";
 
     function encode_string(str) {
         var ret = make_string(str, options.ascii_only);
@@ -1554,9 +1560,9 @@ function gen_code(ast, options) {
             b.push(a[i]);
             if (next &&
                 ((is_identifier_char(last_char(a[i])) && (is_identifier_char(first_char(next))
-                                                          || first_char(next) == "\\")) ||
-                 (/[\+\-]$/.test(a[i].toString()) && /^[\+\-]/.test(next.toString()) ||
-                 last_char(a[i]) == "/" && first_char(next) == "/"))) {
+                || first_char(next) == "\\")) ||
+                (/[\+\-]$/.test(a[i].toString()) && /^[\+\-]/.test(next.toString()) ||
+                last_char(a[i]) == "/" && first_char(next) == "/"))) {
                 b.push(" ");
             }
         }
@@ -1619,17 +1625,17 @@ function gen_code(ast, options) {
         if (Math.floor(num) === num) {
             if (num >= 0) {
                 a.push("0x" + num.toString(16).toLowerCase(), // probably pointless
-                       "0" + num.toString(8)); // same.
+                    "0" + num.toString(8)); // same.
             } else {
                 a.push("-0x" + (-num).toString(16).toLowerCase(), // probably pointless
-                       "-0" + (-num).toString(8)); // same.
+                    "-0" + (-num).toString(8)); // same.
             }
             if ((m = /^(.*?)(0+)$/.exec(num))) {
                 a.push(m[1] + "e" + m[2].length);
             }
         } else if ((m = /^0?\.(0+)(.*)$/.exec(num))) {
             a.push(m[2] + "e-" + (m[1].length + m[2].length),
-                   str.substr(str.indexOf(".")));
+                str.substr(str.indexOf(".")));
         }
         return best_of(a);
     };
@@ -1652,10 +1658,10 @@ function gen_code(ast, options) {
                 return make_block.apply(this, arguments);
             } else {
                 return MAP(make_block_statements(statements, true),
-                           function(line, i) {
-                               // the first line is already indented
-                               return i > 0 ? indent(line) : line;
-                           }).join(newline);
+                    function(line, i) {
+                        // the first line is already indented
+                        return i > 0 ? indent(line) : line;
+                    }).join(newline);
             }
         },
         "block": make_block,
@@ -1711,8 +1717,8 @@ function gen_code(ast, options) {
         },
         "conditional": function(co, th, el) {
             return add_spaces([ parenthesize(co, "assign", "seq", "conditional"), "?",
-                                parenthesize(th, "seq"), ":",
-                                parenthesize(el, "seq") ]);
+                parenthesize(th, "seq"), ":",
+                parenthesize(el, "seq") ]);
         },
         "assign": function(op, lvalue, rvalue) {
             if (op && op !== true) op += "=";
@@ -1738,8 +1744,8 @@ function gen_code(ast, options) {
             if (!already_wrapped && needs_parens(func))
                 f = "(" + f + ")";
             return f + "(" + add_commas(MAP(args, function(expr){
-                return parenthesize(expr, "seq");
-            })) + ")";
+                    return parenthesize(expr, "seq");
+                })) + ")";
         },
         "function": make_function,
         "defun": make_function,
@@ -1762,9 +1768,15 @@ function gen_code(ast, options) {
         },
         "for-in": function(vvar, key, hash, block) {
             return add_spaces([ "for", "(" +
-                                (vvar ? make(vvar).replace(/;+$/, "") : make(key)),
-                                "in",
-                                make(hash) + ")", make(block) ]);
+            (vvar ? make(vvar).replace(/;+$/, "") : make(key)),
+                "in",
+                make(hash) + ")", make(block) ]);
+        },
+        "for-of": function(vvar, key, hash, block) {
+            return add_spaces([ "for", "(" +
+            (vvar ? make(vvar).replace(/;+$/, "") : make(key)),
+                "of",
+                make(hash) + ")", make(block) ]);
         },
         "while": function(condition, block) {
             return add_spaces([ "while", "(" + make(condition) + ")", make(block) ]);
@@ -1793,7 +1805,7 @@ function gen_code(ast, options) {
                 right = "(" + right + ")";
             }
             else if (!beautify && options.inline_script && (operator == "<" || operator == "<<")
-                     && rvalue[0] == "regexp" && /^script/i.test(rvalue[1])) {
+                && rvalue[0] == "regexp" && /^script/i.test(rvalue[1])) {
                 right = " " + right;
             }
             return add_spaces([ left, operator, right ]);
@@ -1821,26 +1833,26 @@ function gen_code(ast, options) {
             if (props.length == 0)
                 return obj_needs_parens ? "({})" : "{}";
             var out = "{" + newline + with_indent(function(){
-                return MAP(props, function(p){
-                    if (p.length == 3) {
-                        // getter/setter.  The name is in p[0], the arg.list in p[1][2], the
-                        // body in p[1][3] and type ("get" / "set") in p[2].
-                        return indent(make_function(p[0], p[1][2], p[1][3], p[2], true));
-                    }
-                    var key = p[0], val = parenthesize(p[1], "seq");
-                    if (options.quote_keys) {
-                        key = encode_string(key);
-                    } else if ((typeof key == "number" || !beautify && +key + "" == key)
-                               && parseFloat(key) >= 0) {
-                        key = make_num(+key);
-                    } else if (!is_identifier(key)) {
-                        key = encode_string(key);
-                    }
-                    return indent(add_spaces(beautify && options.space_colon
-                                             ? [ key, ":", val ]
-                                             : [ key + ":", val ]));
-                }).join("," + newline);
-            }) + newline + indent("}");
+                    return MAP(props, function(p){
+                        if (p.length == 3) {
+                            // getter/setter.  The name is in p[0], the arg.list in p[1][2], the
+                            // body in p[1][3] and type ("get" / "set") in p[2].
+                            return indent(make_function(p[0], p[1][2], p[1][3], p[2], true));
+                        }
+                        var key = p[0], val = parenthesize(p[1], "seq");
+                        if (options.quote_keys) {
+                            key = encode_string(key);
+                        } else if ((typeof key == "number" || !beautify && +key + "" == key)
+                            && parseFloat(key) >= 0) {
+                            key = make_num(+key);
+                        } else if (!is_identifier(key)) {
+                            key = encode_string(key);
+                        }
+                        return indent(add_spaces(beautify && options.space_colon
+                            ? [ key, ":", val ]
+                            : [ key + ":", val ]));
+                    }).join("," + newline);
+                }) + newline + indent("}");
             return obj_needs_parens ? "(" + out + ")" : out;
         },
         "regexp": function(rx, mods) {
@@ -1897,12 +1909,12 @@ function gen_code(ast, options) {
             var type = b[0];
             if (type == "if") {
                 if (!b[3])
-                    // no else, we must add the block
+                // no else, we must add the block
                     return make([ "block", [ th ]]);
                 b = b[3];
             }
             else if (type == "while" || type == "do") b = b[2];
-            else if (type == "for" || type == "for-in") b = b[4];
+            else if (type == "for" || type == "for-in"|| type == "for-of") b = b[4];
             else break;
         }
         return make(th);
@@ -1920,21 +1932,22 @@ function gen_code(ast, options) {
 
     function must_has_semicolon(node) {
         switch (node[0]) {
-          case "with":
-          case "while":
-            return empty(node[2]) || must_has_semicolon(node[2]);
-          case "for":
-          case "for-in":
-            return empty(node[4]) || must_has_semicolon(node[4]);
-          case "if":
-            if (empty(node[2]) && !node[3]) return true; // `if' with empty `then' and no `else'
-            if (node[3]) {
-                if (empty(node[3])) return true; // `else' present but empty
-                return must_has_semicolon(node[3]); // dive into the `else' branch
-            }
-            return must_has_semicolon(node[2]); // dive into the `then' branch
-          case "directive":
-            return true;
+            case "with":
+            case "while":
+                return empty(node[2]) || must_has_semicolon(node[2]);
+            case "for":
+            case "for-in":
+            case "for-of":
+                return empty(node[4]) || must_has_semicolon(node[4]);
+            case "if":
+                if (empty(node[2]) && !node[3]) return true; // `if' with empty `then' and no `else'
+                if (node[3]) {
+                    if (empty(node[3])) return true; // `else' present but empty
+                    return must_has_semicolon(node[3]); // dive into the `else' branch
+                }
+                return must_has_semicolon(node[2]); // dive into the `then' branch
+            case "directive":
+                return true;
         }
     };
 
@@ -1956,25 +1969,25 @@ function gen_code(ast, options) {
         var n = body.length;
         if (n == 0) return "{}";
         return "{" + newline + MAP(body, function(branch, i){
-            var has_body = branch[1].length > 0, code = with_indent(function(){
-                return indent(branch[0]
-                              ? add_spaces([ "case", make(branch[0]) + ":" ])
-                              : "default:");
-            }, 0.5) + (has_body ? newline + with_indent(function(){
-                return make_block_statements(branch[1]).join(newline);
-            }) : "");
-            if (!beautify && has_body && i < n - 1)
-                code += ";";
-            return code;
-        }).join(newline) + newline + indent("}");
+                var has_body = branch[1].length > 0, code = with_indent(function(){
+                        return indent(branch[0]
+                            ? add_spaces([ "case", make(branch[0]) + ":" ])
+                            : "default:");
+                    }, 0.5) + (has_body ? newline + with_indent(function(){
+                        return make_block_statements(branch[1]).join(newline);
+                    }) : "");
+                if (!beautify && has_body && i < n - 1)
+                    code += ";";
+                return code;
+            }).join(newline) + newline + indent("}");
     };
 
     function make_block(statements) {
         if (!statements) return ";";
         if (statements.length == 0) return "{}";
         return "{" + newline + with_indent(function(){
-            return make_block_statements(statements).join(newline);
-        }) + newline + indent("}");
+                return make_block_statements(statements).join(newline);
+            }) + newline + indent("}");
     };
 
     function make_1vardef(def) {
@@ -2007,12 +2020,12 @@ function split_lines(code, max_line_length) {
                 }
                 if (current_length(tok) > max_line_length) {
                     switch (tok.type) {
-                      case "keyword":
-                      case "atom":
-                      case "name":
-                      case "punc":
-                        split_here(tok);
-                        break out;
+                        case "keyword":
+                        case "atom":
+                        case "name":
+                        case "punc":
+                            split_here(tok);
+                            break out;
                     }
                 }
             }
