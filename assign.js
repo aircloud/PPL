@@ -178,6 +178,7 @@ function tokenizer(input, token, varRange){
         sentences1=sentences0.replace(/\s*\)\:/,"")
         sentences2 = sentences1.split(";");
         for(i=0;i<sentences2.length;i++){
+            sets=[];
             sentences3 = sentences2[i].split(" ");
             b = 0;
             while(b<sentences3.length) {
