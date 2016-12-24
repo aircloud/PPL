@@ -171,6 +171,55 @@ token ["for",
 	["print",{string:"def"}]
 ]]
 
+
+增加：实际上python的for循环不应该是这样子，但是我们自己的python版本出于之后的演示方便，应该把上面的实现，然后对于不是上面的，主要有以下几种:
+
+[py有规定，这里我们遵守：in 前面只能有一个变量，in后面的各种形式下面已经列出]
+
+for i in range(100)
+   a = 2;
+   a = 3;
+   
+token["forin",["name","i"],
+["call",["name","range"], [["num",100]] ],
+[
+  //语句块内容省略
+]
+]
+   
+for i in range(50,100)
+   a = 2;
+   a = 3;
+   
+token["forin",["name","i"],
+["call",["name","range"], [["num",50],["num",100]]],
+[
+  //语句块内容省略
+]
+]
+   
+for x in [ 2, 3, 4, 5]:
+	a = a + x;
+
+token 	["forin",["name","x"],
+["array",[["num",2],["num",3],["num",4],["num",5]]],
+[
+  //语句块内容省略
+]
+]
+
+for x in sv   //注: sv是某一个类似list的变量
+   a = a + x;
+   //或者 a = a + sv[x]
+
+token 	["forin",["name","x"],
+["name","sv"],
+[
+  //语句块内容省略
+]
+]
+
+
 ```
  
 * 语句块 while循环    
@@ -391,6 +440,9 @@ Python元组包含了以下内置函数
 3、max(tuple)：返回元组中元素最大值。
 4、min(tuple)：返回元组中元素最小值。
 5、tuple(seq)：将列表转换为元组。 //这个不太好实现，不实现了
+
+range()函数 
+这个应该for...in...的时候实现，考虑的情况较多，目前还没有写...
 
 
 ```

@@ -569,6 +569,19 @@ module.exports = function entrance(original_Token){
 
                 break;
 
+            case "forin":
+
+                //在ES6中，有三类数据结构原生具备Iterator接口：数组、某些类似数组的对象、Set和Map结构。
+                //而这里,我们用到的就是这个接口
+
+                tempExpress=["for-of",["var",[[ original_Token[ii][1][1] ]] ],["name",[original_Token[ii][1][1]]],original_Token[ii][2]];
+
+                tempExpress[4] = ["block",entrance(original_Token[ii][3])[1]];
+
+                resultTree[1].push(tempExpress);
+
+                break;
+
             default:
 
                 break;

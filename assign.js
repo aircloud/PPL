@@ -276,6 +276,34 @@ function tokenizer(input, token, varRange){
         if (sentences[current].search(/:\s*$/) == ":"){
             return "Illegal FOR";
         }
+        sets = [];
+        sentences0 = sentences[current].replace(/for\(\s*/,"");
+        sentences1=sentences0.replace(/\s*\)\:/,"")
+        sentences2 = sentences1.split(";");
+        for(i=0;i<sentences2.length;i++){
+            sets=[];
+            sentences3 = sentences2[i].split(" ");
+            b = 0;
+            while(b<sentences3.length) {
+                wordmean = sentences3[b];
+
+               b++;
+                elementClassify(wordmean,sets);
+            }
+
+            tokens.push(sets);
+        }
+
+
+        //content
+        current++;
+        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+            tokenizer(sentences[current], sets, vars);
+            current ++;
+        }
+        tokens.push(sets);
+        sets = [];
+
     }
     //处理while
     else if(words[0] == "while"){
@@ -450,14 +478,24 @@ code = "x = 50;\n" +
     "\tprint \"aaa\"\n" +
     "\tx = 2\n" +
     "\treturn x;";
+<<<<<<< HEAD
 */
 code = "a=f1(2,2.5)-a\n" +
     "s = set([2,4,6]);\n" +//样例里少了一层括号，真心的。
     "b = [1,2,3,\"asd\"]";
     //"c = (8,9,  \"@#$\")";
+=======
+
+code="for( i = 1;i < 4;i = i + 1 ):\n" +
+    "\ta = 2\n" +
+        "\tprint 3"
+>>>>>>> 0b67b0d4490e168a5626a278a7412448ded9e053
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 console.log(allTokens);
+<<<<<<< HEAD
 console.log(allTokens[3][2]);
+=======
+>>>>>>> 0b67b0d4490e168a5626a278a7412448ded9e053
