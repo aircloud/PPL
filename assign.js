@@ -1,34 +1,113 @@
 //变量类型等各种错误检测
 
 var current = 0;//当前语句行号
-var sentences;
+var sentences = [];
 var allTokens = [];
 
 
 var vars = [];
 var functionvars = []
 var prebinaries = ['++', '--', '+=', '-=', '*=', '/=', '%=', '**=', '//='];
-var brackets = [ '(', ')', '[', ']', '{', '}'];
-var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':', ',',
+var brackets = [ '(', '[', '{', ')', ']', '}'];
+var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':', ',', '.',
     '(', ')', '[', ']', '{', '}',
     '==', '!=', '<>', '>', '<', '>=', '<=', '=',
     '+=', '-=', '*=', '/=', '%=', '**=', '//=', '++', '--',
     '&', '|', '^', '~', '<<', '>>']
     //'and', 'or', 'not', 'in', 'not', 'is'];//not in; is not
 
-function elementClassify(word, set){
-    if (binaries.indexOf(word) != -1) {
-        set.push(["binary", word]);
+function elementClassify(words, index, set){
+    //Dict【还没好
+    if (words[index] == "{") {
+    ;
     }
-    else if (word.search("\"") == 0) {
-        set.push(["string", word.substr(1, word.length - 2)]);
+    //List
+    else if (words[index] == "[") {
+        var subset = [];
+        subset.push("array");
+        index ++;
+        var subsubset = [];
+        while(words[index] != "]"){
+            //看样子参数里不能包含运算了？
+            if(words[index] == ',')
+                index ++;
+            index = elementClassify(words, index, subsubset);
+            index ++;
+        }
+        index ++;
+        subset.push(subsubset);
+        set.push(subset);
     }
-    else if (word.search(/\D/g) != -1) {
-        set.push(["name", word]);
+    //运算符号
+    else if (binaries.indexOf(words[index]) != -1) {
+        set.push(["binary", words[index]]);
     }
+    //字符串
+    else if (words[index].search("\"") == 0) {
+        set.push(["string", words[index].substr(1, words[index].length - 2)]);
+    }
+    //变量（包括复杂数据类型set）或函数
+    else if (words[index].search(/\D/g) != -1) {
+        if(index < words.length - 1 && words[index+1] == "("){
+            //Set
+            if(words[index] == "set" && words[index+1] == "(" && words[index+2] == "["){
+                var subset = [];
+                subset.push("set");
+                index += 3;
+                var subsubset = [];
+                while(words[index] != "]"){
+                    //看样子参数里不能包含运算了？
+                    if(words[index] == ',')
+                        index ++;
+                    index = elementClassify(words, index, subsubset);
+                    index ++;
+                }
+                index ++;
+                subset.push(subsubset);
+                set.push(subset);
+            }
+            //Function
+            else{
+                var subset = [];
+                subset.push("call");
+                subset.push(["name", words[index]]);
+                index += 2;
+                var subsubset = [];
+                while(words[index] != ")"){
+                    //看样子参数里不能包含运算了？
+                    if(words[index] == ',')
+                        index ++;
+                    index = elementClassify(words, index, subsubset);
+                    index ++;
+                }
+                subset.push(subsubset);
+                set.push(subset);
+            }
+        }
+        else {
+            set.push(["name", words[index]]);
+        }
+    }
+    //数字
     else {
-        set.push(["num", parseFloat(word)]);
+        if(index < words.length - 1 && words[index+1] == "."){
+            var tempNum = words[index]+ ".";
+            index ++;
+            if(index < words.length - 1 &&
+                binaries.indexOf(words[index+1]) == -1 &&
+                words[index+1].search("\"") != 0 &&
+                words[index+1].search(/\D/g) == -1
+            ){
+                tempNum += words[index+1];
+                index ++;
+            }
+            set.push(["num", parseFloat(tempNum)]);
+        }
+        else {
+            set.push(["num", parseFloat(words[index])]);
+        }
     }
+    return index;
 }
 
 //引号里套引号就先不考虑啦
@@ -95,7 +174,30 @@ function tokenizer(input, token, varRange){
     while( words.indexOf('') != -1 ) {
         words.splice(words.indexOf('', 1));
     }
-
+    //处理特殊符号
+    for (i = 0; i < words.length; i++) {
+        word = words[i];
+        if (prebinaries.indexOf(word) != -1) {
+            if (word == "++" || word == "--") {
+                words.splice(i, 1, "=", words[i-1], word[0], "1");
+            }
+            else {
+                words.splice(i, 1, "=", words[i-1], words[i].substr(0, words[i].length - 1), "(");
+                var index = i;
+                var countBracket = 0;
+                while (index < words.length && words[index] != ";"){
+                    if (words[index] == "(")
+                        countBracket ++;
+                    if (words[index]  == ")")
+                        countBracket --;
+                    if (countBracket < 0)
+                        break;
+                    index ++;
+                }
+                words.splice(index, 0, ")");
+            }
+        }
+    }
 
     //语句处理
     var tokens = [];
@@ -133,11 +235,9 @@ function tokenizer(input, token, varRange){
         tokens.push("if");
         sets = [];
         i = 1;
-        word = words[i];
-        while(word != ":"){
-            elementClassify(word, sets);
+        while(words[i] != ":"){
+            i = elementClassify(words, i, sets);
             i++;
-            word = words[i];
         }
         tokens.push(sets);
         sets = [];
@@ -173,7 +273,9 @@ function tokenizer(input, token, varRange){
     //处理for【....不对啊，python只有 for in 啊....
     else if(words[0] == "for"){
         tokens.push("for");
-
+        if (sentences[current].search(/:\s*$/) == ":"){
+            return "Illegal FOR";
+        }
     }
     //处理while
     else if(words[0] == "while"){
@@ -183,11 +285,9 @@ function tokenizer(input, token, varRange){
         tokens.push("while");
         sets = [];
         i = 1;
-        word = words[i];
-        while(word != ":"){
-            elementClassify(word, sets);
+        while(words[i] != ":"){
+            i = elementClassify(words, i, sets);
             i++;
-            word = words[i];
         }
         tokens.push(sets);
         sets = [];
@@ -200,7 +300,7 @@ function tokenizer(input, token, varRange){
         tokens.push(sets);
         sets = [];
     }
-    //处理print
+    //处理print,print里会不会有函数啊。。。
     else if(words[0] == "print"){
         var wordcurrent = 0;
         tokens.push(
@@ -239,8 +339,7 @@ function tokenizer(input, token, varRange){
         sets = []
         tokens.push("return");
         for (i = 1; i < words.length; i++) {
-            word = words[i];
-            elementClassify(word, sets);
+            i = elementClassify(words, i, sets);
         }
         tokens.push(sets);
     }
@@ -257,59 +356,63 @@ function tokenizer(input, token, varRange){
             }
             subsets = [];
             i = 2;
-            word = words[i];
-            while(word != "?"){
-                elementClassify(word, subsets);
+            while(words[i] != "?"){
+                i = elementClassify(words, i, subsets);
                 i++;
-                word = words[i];
             }
             sets.push(subsets);
             subsets = [];
             i++;
-            word = words[i];
-            while(word != ":"){
-                elementClassify(word, subsets);
+            while(words[i] != ":"){
+                i = elementClassify(words, i, subsets);
                 i++;
-                word = words[i];
             }
             sets.push(subsets);
             i++;
-            word = words[i];
             subsets = [];
             for (; i < words.length; i++) {
-                elementClassify(word, subsets);
-                word = words[i];
+                i = elementClassify(words, i, subsets);
             }
             sets.push(subsets);
             tokens.push(sets);
         }
         //普通的单行语句
         else {
-            if (varRange.indexOf(words[0]) == -1) {
-                varRange.push(words[0]);
-                tokens.push("var");
-                tokens.push({name: words[0], type: "var"});
-            }
-            else {
-                tokens.push("assign");
-                tokens.push({name: words[0], type: "assign"});
-            }
-            //处理特殊符号
-            if (prebinaries.indexOf(words[1]) != -1) {
-                if (words[1] == "++" || words[1] == "--") {
-                    words.push(words[0]);
-                    words.push(words[1][0]);
-                    words.push("1");
+            //好烦，不想考虑字符串里有“=”的情况
+            //if (input.match("=").length != input.match(/\"\w*=\w*\"/).length) {
+            if (input.search("=") != -1 || words.indexOf("=") != -1){
+                if (varRange.indexOf(words[0]) == -1) {
+                    varRange.push(words[0]);
+                    tokens.push("var");
+                    tokens.push({name: words[0], type: "var"});
                 }
                 else {
-                    words.splice(2, 0, words[0], words[1].substr(0, words[1].length - 1), "(");
-                    words.push(")");
+                    tokens.push("assign");
+                    tokens.push({name: words[0], type: "assign"});
                 }
             }
+
             //处理等号后的部分
+            //Tuple特殊处理,感觉可能不太对【没有处理完
+            /*if (words[2]  == "(" && words.indexOf(",") != -1) {
+                var subset = [];
+                subset.push("array");
+                tokens[1].type = "const";
+                i = 3;
+                var subsubset = [];
+                while(words[i] != ")"){
+                    //看样子参数里不能包含运算了？
+                    if(words[i] == ',')
+                        i ++;
+                    i = elementClassify(words, i, subsubset);
+                    i ++;
+                }
+                i ++;
+                subset.push(subsubset);
+                sets.push(subset);
+            }*/
             for (i = 2; i < words.length; i++) {
-                word = words[i];
-                elementClassify(word, sets);
+                i = elementClassify(words, i, sets);
             }
             tokens.push(sets);
         }
@@ -319,7 +422,7 @@ function tokenizer(input, token, varRange){
     token.push(tokens);
 }
 
-
+/*
 var code = "a=123;  \n" +
     "a = 456\n" +
     "a = \"a string\"\n" +
@@ -347,9 +450,14 @@ code = "x = 50;\n" +
     "\tprint \"aaa\"\n" +
     "\tx = 2\n" +
     "\treturn x;";
+*/
+code = "a=f1(2,2.5)-a\n" +
+    "s = set([2,4,6]);\n" +//样例里少了一层括号，真心的。
+    "b = [1,2,3,\"asd\"]";
+    //"c = (8,9,  \"@#$\")";
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 console.log(allTokens);
-console.log(allTokens[2][3][2]);
+console.log(allTokens[3][2]);
