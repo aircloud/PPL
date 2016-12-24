@@ -173,6 +173,32 @@ function tokenizer(input, token, varRange){
     //处理for【....不对啊，python只有 for in 啊....
     else if(words[0] == "for"){
         tokens.push("for");
+                sets = [];
+        sentences0 = sentences[current].replace(/for\(\s*/,"");
+        sentences1=sentences0.replace(/\s*\)\:/,"")
+        sentences2 = sentences1.split(";");
+        for(i=0;i<sentences2.length;i++){
+            sentences3 = sentences2[i].split(" ");
+            b = 0;
+            while(b<sentences3.length) {
+                wordmean = sentences3[b];
+
+               b++;
+                elementClassify(wordmean,sets);
+            }
+
+            tokens.push(sets);
+        }
+
+
+        //content
+        current++;
+        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+            tokenizer(sentences[current], sets, vars);
+            current ++;
+        }
+        tokens.push(sets);
+        sets = [];
 
     }
     //处理while
@@ -347,9 +373,12 @@ code = "x = 50;\n" +
     "\tprint \"aaa\"\n" +
     "\tx = 2\n" +
     "\treturn x;";
+
+code="for( i = 1;i < 4;i = i + 1 ):\n" +
+    "\ta = 2\n" +
+        "\tprint 3"
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 console.log(allTokens);
-console.log(allTokens[2][3][2]);
