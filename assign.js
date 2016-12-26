@@ -16,27 +16,47 @@ var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':', ',', '.',
     '&', '|', '^', '~', '<<', '>>']
     //'and', 'or', 'not', 'in', 'not', 'is'];//not in; is not
 
+function arrayClassify(type, endChar, words, index, set){
+    var subset = [];
+    subset.push(type);
+    var subsubset = [];
+    while(words[index] != endChar){
+        //看样子参数里不能包含运算了？
+        if(words[index] == ',')
+            index ++;
+        index = elementClassify(words, index, subsubset);
+        index ++;
+    }
+    subset.push(subsubset);
+    set.push(subset);
+    return index;
+}
+
 function elementClassify(words, index, set){
+    console.log(words[index], index);
     //Dict【还没好
     if (words[index] == "{") {
-    ;
+        console.log(words);
+        index++;
+        var subset = [];
+        subset.push("map");
+        var subsubset = [];
+        while(index < words.length && words[index] != "}"){
+            var eleset = [];
+            eleset.push(words[index].replace(/'|'$/g, ''));
+            var subeleset = [];
+            elementClassify(words, index+2, subeleset);
+            eleset.push(subeleset);
+            subsubset.push(eleset);
+            index += 4;
+        }
+        subset.push(subsubset);
+        set.push(subset);
     }
     //List
     else if (words[index] == "[") {
-        var subset = [];
-        subset.push("array");
         index ++;
-        var subsubset = [];
-        while(words[index] != "]"){
-            //看样子参数里不能包含运算了？
-            if(words[index] == ',')
-                index ++;
-            index = elementClassify(words, index, subsubset);
-            index ++;
-        }
-        index ++;
-        subset.push(subsubset);
-        set.push(subset);
+        index = arrayClassify("array", "]", words, index, set);
     }
     //运算符号
     else if (binaries.indexOf(words[index]) != -1) {
@@ -51,37 +71,16 @@ function elementClassify(words, index, set){
         if(index < words.length - 1 && words[index+1] == "("){
             //Set
             if(words[index] == "set" && words[index+1] == "(" && words[index+2] == "["){
-                var subset = [];
-                subset.push("set");
                 index += 3;
-                var subsubset = [];
-                while(words[index] != "]"){
-                    //看样子参数里不能包含运算了？
-                    if(words[index] == ',')
-                        index ++;
-                    index = elementClassify(words, index, subsubset);
-                    index ++;
-                }
+                index = arrayClassify("set", "]", words, index, set);
                 index ++;
-                subset.push(subsubset);
-                set.push(subset);
             }
             //Function
             else{
-                var subset = [];
-                subset.push("call");
-                subset.push(["name", words[index]]);
+                var name = words[index];
                 index += 2;
-                var subsubset = [];
-                while(words[index] != ")"){
-                    //看样子参数里不能包含运算了？
-                    if(words[index] == ',')
-                        index ++;
-                    index = elementClassify(words, index, subsubset);
-                    index ++;
-                }
-                subset.push(subsubset);
-                set.push(subset);
+                index = arrayClassify("call", ")", words, index, set);
+                set[0].splice(1,0,{'name': name});
             }
         }
         else {
@@ -270,7 +269,7 @@ function tokenizer(input, token, varRange){
         }
         current--;
     }
-    //处理for【....不对啊，python只有 for in 啊....
+    //处理for【....不对啊，python只有 for in 啊....【好像还是不太贵
     else if(words[0] == "for"){
         tokens.push("for");
         if (sentences[current].search(/:\s*$/) == ":"){
@@ -287,8 +286,8 @@ function tokenizer(input, token, varRange){
             while(b<sentences3.length) {
                 wordmean = sentences3[b];
 
-               b++;
-                elementClassify(wordmean,sets);
+                elementClassify(sentences3, b, sets);
+                b++;
             }
 
             tokens.push(sets);
@@ -422,25 +421,15 @@ function tokenizer(input, token, varRange){
 
             //处理等号后的部分
             //Tuple特殊处理,感觉可能不太对【没有处理完
-            /*if (words[2]  == "(" && words.indexOf(",") != -1) {
-                var subset = [];
-                subset.push("array");
-                tokens[1].type = "const";
+            if (words[2]  == "(" && words.indexOf(",") != -1) {
                 i = 3;
-                var subsubset = [];
-                while(words[i] != ")"){
-                    //看样子参数里不能包含运算了？
-                    if(words[i] == ',')
-                        i ++;
-                    i = elementClassify(words, i, subsubset);
-                    i ++;
+                tokens[1].type = "const";
+                i = arrayClassify("array", ")", words ,i ,sets);
+            }
+            else {
+                for (i = 2; i < words.length; i++) {
+                    i = elementClassify(words, i, sets);
                 }
-                i ++;
-                subset.push(subsubset);
-                sets.push(subset);
-            }*/
-            for (i = 2; i < words.length; i++) {
-                i = elementClassify(words, i, sets);
             }
             tokens.push(sets);
         }
@@ -478,24 +467,19 @@ code = "x = 50;\n" +
     "\tprint \"aaa\"\n" +
     "\tx = 2\n" +
     "\treturn x;";
-<<<<<<< HEAD
+ code="for( i = 1;i < 4;i = i + 1 ):\n" +
+ "\ta = 2\n" +
+ "\tprint 3"
 */
 code = "a=f1(2,2.5)-a\n" +
     "s = set([2,4,6]);\n" +//样例里少了一层括号，真心的。
-    "b = [1,2,3,\"asd\"]";
-    //"c = (8,9,  \"@#$\")";
-=======
-
-code="for( i = 1;i < 4;i = i + 1 ):\n" +
-    "\ta = 2\n" +
-        "\tprint 3"
->>>>>>> 0b67b0d4490e168a5626a278a7412448ded9e053
+    "b = [1,2,3,\"asd\",[6,7]]\n" +
+    "c = (1,2,3)\n" +
+    "d = {'Michael': 95, 'Bob': 75}";
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 console.log(allTokens);
-<<<<<<< HEAD
-console.log(allTokens[3][2]);
-=======
->>>>>>> 0b67b0d4490e168a5626a278a7412448ded9e053
+//console.log(allTokens[4][2][0][1][0]);
+
