@@ -270,7 +270,7 @@ function tokenizer(input, token, varRange){
         current--;
     }
     //处理for【....不对啊，python只有 for in 啊....【好像还是不太贵
-    else if(words[0] == "for"){
+    else if(words[0] == "for"&&sentences[current].search(/in/)==-1){
         tokens.push("for");
         if (sentences[current].search(/:\s*$/) == ":"){
             return "Illegal FOR";
@@ -304,6 +304,30 @@ function tokenizer(input, token, varRange){
         sets = [];
 
     }
+//处理forin
+  else if(words[0]=="for"&&sentences[current].search(/in/)!=-1){
+        tokens.push("forin");
+        sets = [];
+        i = 1;
+
+        i = elementClassify(words, i, sets);
+        tokens.push(sets);
+        sets = [];
+        i=i+2;
+        i = elementClassify(words, i, sets);
+        tokens.push(sets);
+        sets = [];
+        current++;
+        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+            tokenizer(sentences[current], sets, vars);
+            current ++;
+        }
+        tokens.push(sets);
+        sets = [];
+
+    }
+
+
     //处理while
     else if(words[0] == "while"){
         if (sentences[current].search(/:\s*$/) == ":"){
@@ -471,11 +495,15 @@ code = "x = 50;\n" +
  "\ta = 2\n" +
  "\tprint 3"
 */
-code = "a=f1(2,2.5)-a\n" +
+/*code = "a=f1(2,2.5)-a\n" +
     "s = set([2,4,6]);\n" +//样例里少了一层括号，真心的。
     "b = [1,2,3,\"asd\",[6,7]]\n" +
     "c = (1,2,3)\n" +
     "d = {'Michael': 95, 'Bob': 75}";
+*/
+code = "for x in range(1,8):\n"+
+    "\tprint 3"
+
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
