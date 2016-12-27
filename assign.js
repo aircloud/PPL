@@ -33,8 +33,8 @@ function arrayClassify(type, endChar, words, index, set){
 }
 
 function elementClassify(words, index, set){
-    console.log(words[index], index);
-    //Dict【还没好
+    //console.log(words[index], index);
+    //Dict
     if (words[index] == "{") {
         console.log(words);
         index++;
@@ -68,7 +68,7 @@ function elementClassify(words, index, set){
     }
     //变量（包括复杂数据类型set）或函数
     else if (words[index].search(/\D/g) != -1) {
-        if(index < words.length - 1 && words[index+1] == "("){
+        if(index < words.length - 1 && (words[index+1] == "(" || words[index+1] == ".")){
             //Set
             if(words[index] == "set" && words[index+1] == "(" && words[index+2] == "["){
                 index += 3;
@@ -77,10 +77,22 @@ function elementClassify(words, index, set){
             }
             //Function
             else{
-                var name = words[index];
+                var varname, funname;
+                var dot = 0;
+                if(words[index+1] == "."){
+                    varname = words[index];
+                    index += 2;
+                    dot = 1;
+                }
+                funname = words[index];
                 index += 2;
                 index = arrayClassify("call", ")", words, index, set);
-                set[0].splice(1,0,{'name': name});
+                if (dot == 0) {
+                    set[0].splice(1, 0, ['name', funname]);
+                }
+                else{
+                    set[0].splice(1, 0, ["dot",["name", varname], funname]);
+                }
             }
         }
         else {
@@ -300,12 +312,13 @@ function tokenizer(input, token, varRange){
             tokenizer(sentences[current], sets, vars);
             current ++;
         }
+        current--;
         tokens.push(sets);
         sets = [];
 
     }
-//处理forin
-  else if(words[0]=="for"&&sentences[current].search(/in/)!=-1){
+    //处理forin
+    else if(words[0]=="for"&&sentences[current].search(/in/)!=-1){
         tokens.push("forin");
         sets = [];
         i = 1;
@@ -322,12 +335,11 @@ function tokenizer(input, token, varRange){
             tokenizer(sentences[current], sets, vars);
             current ++;
         }
+        current--;
         tokens.push(sets);
         sets = [];
 
     }
-
-
     //处理while
     else if(words[0] == "while"){
         if (sentences[current].search(/:\s*$/) == ":"){
@@ -348,6 +360,7 @@ function tokenizer(input, token, varRange){
             tokenizer(sentences[current], sets, vars);
             current ++;
         }
+        current--;
         tokens.push(sets);
         sets = [];
     }
@@ -427,8 +440,8 @@ function tokenizer(input, token, varRange){
             sets.push(subsets);
             tokens.push(sets);
         }
-        //普通的单行语句
-        else {
+        //普通的单行赋值语句
+        else if( words.indexOf("=") == 1 ){
             //好烦，不想考虑字符串里有“=”的情况
             //if (input.match("=").length != input.match(/\"\w*=\w*\"/).length) {
             if (input.search("=") != -1 || words.indexOf("=") != -1){
@@ -442,7 +455,6 @@ function tokenizer(input, token, varRange){
                     tokens.push({name: words[0], type: "assign"});
                 }
             }
-
             //处理等号后的部分
             //Tuple特殊处理,感觉可能不太对【没有处理完
             if (words[2]  == "(" && words.indexOf(",") != -1) {
@@ -456,6 +468,14 @@ function tokenizer(input, token, varRange){
                 }
             }
             tokens.push(sets);
+        }
+        //仅有函数的语句
+        else{
+            for (i = 0; i < words.length; i++) {
+                i = elementClassify(words, i, sets);
+            }
+            token.push(sets[0]);
+            return;
         }
     }
 
@@ -494,20 +514,25 @@ code = "x = 50;\n" +
  code="for( i = 1;i < 4;i = i + 1 ):\n" +
  "\ta = 2\n" +
  "\tprint 3"
-*/
-/*code = "a=f1(2,2.5)-a\n" +
+ code = "a=f1(2,2.5)-a\n" +
     "s = set([2,4,6]);\n" +//样例里少了一层括号，真心的。
     "b = [1,2,3,\"asd\",[6,7]]\n" +
     "c = (1,2,3)\n" +
     "d = {'Michael': 95, 'Bob': 75}";
-*/
-code = "for x in range(1,8):\n"+
-    "\tprint 3"
+code = "for y in li:\n"+
+    "\tprint 3\n" +
+    "\ta = b+1\n" +
+    "b++"
+ */
+code = "fun1();\n" +
+    "fun2(2,a)\n" +
+    "a.pop()\n" +
+    "a.push(3,4)"
 
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 console.log(allTokens);
-//console.log(allTokens[4][2][0][1][0]);
+console.log(allTokens[3][2]);
 
