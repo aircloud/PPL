@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c397f3e0-3c8c-4e8d-b518-eeec560ee9e9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-    </list>
+    <list default="true" id="c397f3e0-3c8c-4e8d-b518-eeec560ee9e9" name="Default" comment="" />
     <ignored path="PPL.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -35,11 +33,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test1.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test1.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/anotherMethod/test1.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+            <state relative-caret-position="390">
+              <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
               <folding>
                 <element signature="e#0#128#0" expanded="false" />
               </folding>
@@ -87,7 +85,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="createToken.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="createToken.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/createToken/createToken.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="495">
@@ -354,12 +352,12 @@
       <updated>1481034414837</updated>
       <workItem from="1481034416078" duration="3946000" />
       <workItem from="1481109098672" duration="3877000" />
-      <workItem from="1482885671841" duration="1849000" />
+      <workItem from="1482885671841" duration="2293000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9672000" />
+    <option name="totallyTimeSpent" value="10116000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="6" />
@@ -542,24 +540,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/product/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/anotherMethod/test1.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#128#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/product/js/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -575,6 +555,24 @@
           <folding>
             <element signature="n#!!block;n#clone#0" expanded="false" />
             <element signature="n#!!block;n#$Node#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/product/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/anotherMethod/test1.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#128#0" expanded="false" />
           </folding>
         </state>
       </provider>

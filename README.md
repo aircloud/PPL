@@ -163,6 +163,38 @@ token ["if",
 	  ["assign",{name:"a",type:"assign"},[["num",0]]]
 ]]
 
+带有elif的：相当于 if(){...}else{if(){...}else{...}} elif相当于语法糖
+
+if(a<1){
+    a = 2;
+    a = 3;
+}
+elif(a>3){
+    a=5;
+}
+else{
+    a = 0;
+}
+
+token :
+["if",
+[["name","a"],["binary","<"],["num",1]],
+[
+      ["assign",{name:"a",type:"assign"},[["num",2]]],
+      ["assign",{name:"a",type:"assign"},[["num",3]]]
+],[
+
+	["if",
+	[["name","a"],["binary",">"],["num",3]],
+	[
+	      ["assign",{name:"a",type:"assign"},[["num",5]]]
+	],[
+		  ["assign",{name:"a",type:"assign"},[["num",0]]]
+	]]
+
+]]
+
+
 ```
 
 * 语句块：for循环    
