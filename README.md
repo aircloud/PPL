@@ -1,5 +1,19 @@
 *Init the program by AirCloud*
 
+展示用：
+
+关键思想：
+
+基于ES6，采用node的模块加载机制。
+
+函数是一等公民
+
+没有变量提升(函数提升)，因此使用没有提升的函数会报错
+
+维持全局作用域和局部作用域
+
+---
+
 
 * NEW:我把自己的nodejs代码放在了demo文件夹下，核心代码在demo/ppl2/control文件夹
 
@@ -419,7 +433,26 @@ remove(somekey)
 //to be added...
 
 ```
+### 补充部分 
 
+* python注释
+
+```
+#this is an annotation
+
+
+'''
+these lines
+
+are
+
+zhu shi s
+
+'''
+
+```
+
+直接忽略掉，不要给我就好了
 
 之后我们还要写一些函数，作为lib链接库文件，因为这些函数在python中内置了，我们自己写一遍伪造内置,(这个部分我现在开始整理并且写了)
 

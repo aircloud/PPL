@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c397f3e0-3c8c-4e8d-b518-eeec560ee9e9" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/product/css/index.css" afterPath="$PROJECT_DIR$/product/css/index.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/product/index.html" afterPath="$PROJECT_DIR$/product/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="PPL.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -68,7 +67,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.css" pinned="false" current-in-tab="true">
+      <file leaf-file-name="index.css" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/product/css/index.css">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="231">
@@ -88,10 +87,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="createToken.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="createToken.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/createToken/createToken.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8565">
+            <state relative-caret-position="495">
               <caret line="797" column="18" selection-start-line="797" selection-start-column="18" selection-end-line="797" selection-end-column="18" />
               <folding>
                 <element signature="n#!!block;n#clone#0" expanded="false" />
@@ -282,7 +281,7 @@
     <property name="JavaScriptWeakerCompletionTypeGuess" value="true" />
     <property name="HbShouldOpenHtmlAsHb" value="" />
     <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/WebstormProjects/ppl2" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
@@ -355,12 +354,12 @@
       <updated>1481034414837</updated>
       <workItem from="1481034416078" duration="3946000" />
       <workItem from="1481109098672" duration="3877000" />
-      <workItem from="1482885671841" duration="1281000" />
+      <workItem from="1482885671841" duration="1849000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9104000" />
+    <option name="totallyTimeSpent" value="9672000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1440" height="900" extended-state="6" />
@@ -476,7 +475,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="n#!!doc" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -487,17 +486,6 @@
           <caret line="7498" column="54" selection-start-line="7498" selection-start-column="13" selection-end-line="7498" selection-end-column="54" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/createToken/createToken.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8565">
-          <caret line="797" column="18" selection-start-line="797" selection-start-column="18" selection-end-line="797" selection-end-column="18" />
-          <folding>
-            <element signature="n#!!block;n#clone#0" expanded="false" />
-            <element signature="n#!!block;n#$Node#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -525,7 +513,7 @@
         <state relative-caret-position="692">
           <caret line="10892" column="0" selection-start-line="10892" selection-start-column="0" selection-end-line="10892" selection-end-column="0" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="n#!!doc" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -534,6 +522,30 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/test1206.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="28" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/product/css/index.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/product/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -548,22 +560,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/test1206.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="28" selection-start-line="21" selection-start-column="28" selection-end-line="21" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/product/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/product/js/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -572,11 +568,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/product/css/index.css">
+    <entry file="file://$PROJECT_DIR$/test/createToken/createToken.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="495">
+          <caret line="797" column="18" selection-start-line="797" selection-start-column="18" selection-end-line="797" selection-end-column="18" />
+          <folding>
+            <element signature="n#!!block;n#clone#0" expanded="false" />
+            <element signature="n#!!block;n#$Node#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
