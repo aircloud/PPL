@@ -1,5 +1,19 @@
 *Init the program by AirCloud*
 
+展示用：
+
+关键思想：
+
+基于ES6，采用node的模块加载机制。
+
+函数是一等公民
+
+没有变量提升(函数提升)，因此使用没有提升的函数会报错
+
+维持全局作用域和局部作用域
+
+---
+
 
 * NEW:我把自己的nodejs代码放在了demo文件夹下，核心代码在demo/ppl2/control文件夹
 
@@ -148,6 +162,38 @@ token ["if",
 ],[
 	  ["assign",{name:"a",type:"assign"},[["num",0]]]
 ]]
+
+带有elif的：相当于 if(){...}else{if(){...}else{...}} elif相当于语法糖
+
+if(a<1){
+    a = 2;
+    a = 3;
+}
+elif(a>3){
+    a=5;
+}
+else{
+    a = 0;
+}
+
+token :
+["if",
+[["name","a"],["binary","<"],["num",1]],
+[
+      ["assign",{name:"a",type:"assign"},[["num",2]]],
+      ["assign",{name:"a",type:"assign"},[["num",3]]]
+],[
+
+	["if",
+	[["name","a"],["binary",">"],["num",3]],
+	[
+	      ["assign",{name:"a",type:"assign"},[["num",5]]]
+	],[
+		  ["assign",{name:"a",type:"assign"},[["num",0]]]
+	]]
+
+]]
+
 
 ```
 
@@ -419,7 +465,26 @@ remove(somekey)
 //to be added...
 
 ```
+### 补充部分 
 
+* python注释
+
+```
+#this is an annotation
+
+
+'''
+these lines
+
+are
+
+zhu shi s
+
+'''
+
+```
+
+直接忽略掉，不要给我就好了
 
 之后我们还要写一些函数，作为lib链接库文件，因为这些函数在python中内置了，我们自己写一遍伪造内置,(这个部分我现在开始整理并且写了)
 
