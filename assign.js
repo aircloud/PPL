@@ -1,6 +1,7 @@
 //变量类型等各种错误检测
 
 var current = 0;//当前语句行号
+var tabcount = 0;
 var sentences = [];
 var allTokens = [];
 
@@ -15,6 +16,14 @@ var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':', ',', '.',
     '+=', '-=', '*=', '/=', '%=', '**=', '//=', '++', '--',
     '&', '|', '^', '~', '<<', '>>']
     //'and', 'or', 'not', 'in', 'not', 'is'];//not in; is not
+
+function confirmTab(input){
+    var i;
+    for (i = 0; i < tabcount; i++)
+        if (input[i] != "\t")
+            break;
+    return i;
+}
 
 function arrayClassify(type, endChar, words, index, set){
     var subset = [];
@@ -214,7 +223,6 @@ function tokenizer(input, token, varRange){
     var tokens = [];
     var sets = [];
     var subsets = [];
-    //
     //处理def
     if (words[0] == "def"){
         if (sentences[current].search(/:\s*$/) == ":"){
@@ -230,13 +238,16 @@ function tokenizer(input, token, varRange){
         tokens.push(sets);
         sets = [];
         //content
-        current++;
-        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+        current ++;
+        tabcount ++;
+        while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount){
             tokenizer(sentences[current], sets, functionvars);
             current ++;
         }
+        tabcount --;
         tokens.push(sets);
         sets = [];
+        current --;
     }
     //处理if
     else if(words[0] == "if"){
@@ -254,31 +265,39 @@ function tokenizer(input, token, varRange){
         sets = [];
         //content
         current ++;
-        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+        tabcount ++;
+        while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount){
             tokenizer(sentences[current], sets, vars);
             current ++;
         }
+        tabcount --;
         tokens.push(sets);
         sets = [];
         //else and elif
-        while(sentences[current] != undefined && sentences[current].substr(0,2) == "el"){
-            if ( sentences[current].search(/:\s*$/) == -1){
+        var sentence = sentences[current].replace(/^\s*/, "");
+        while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount && sentence.substr(0,2) == "el"){
+            sentence = sentences[current].replace(/^\s*/, "");
+            if ( sentence.search(/:\s*$/) == -1){
                 current --;
                 return "Illegal ELSE ";
             }
-            if (sentences[current].substr(2,2) == "if"){
-                ;//这个是不是还没分好类啊
+            if (sentence.substr(2,2) == "if"){
+                sentences[current] = sentences[current].replace("elif", "if");
+                tokenizer(sentences[current], sets, vars);
+                current ++;
             }
-            else if(sentences[current].substr(2,2) == "se"){
+            else if(sentence.substr(2,2) == "se"){
                 current++;
-                while(sentences[current] != undefined && sentences[current][0] == "\t"){
+                tabcount ++;
+                while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount){
                     tokenizer(sentences[current], sets, vars);
                     current ++;
                 }
+                tabcount--;
             }
-            tokens.push(sets);
-            sets = [];
         }
+        tokens.push(sets);
+        sets = [];
         current--;
     }
     //处理for【....不对啊，python只有 for in 啊....【好像还是不太贵
@@ -331,10 +350,12 @@ function tokenizer(input, token, varRange){
         tokens.push(sets);
         sets = [];
         current++;
-        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+        tabcount ++;
+        while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount){
             tokenizer(sentences[current], sets, vars);
             current ++;
         }
+        tabcount--;
         current--;
         tokens.push(sets);
         sets = [];
@@ -355,11 +376,13 @@ function tokenizer(input, token, varRange){
         tokens.push(sets);
         sets = [];
         //content
-        current++;
-        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+        current ++;
+        tabcount ++;
+        while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount){
             tokenizer(sentences[current], sets, vars);
             current ++;
         }
+        tabcount --;
         current--;
         tokens.push(sets);
         sets = [];
@@ -523,16 +546,27 @@ code = "for y in li:\n"+
     "\tprint 3\n" +
     "\ta = b+1\n" +
     "b++"
- */
 code = "fun1();\n" +
     "fun2(2,a)\n" +
     "a.pop()\n" +
     "a.push(3,4)"
+ */
+
+code = "if a < 1:\n" +
+    "\ta ++\n" +
+    "if b == 1:\n" +
+    "\tif c ==1:\n" +
+    "\t\t b++\n" +
+    "\telif c ==2:\n" +
+    "\telse:\n" +
+    "\t\t b = a+2\n" +
+    "else:\n" +
+    "\ta = a+2";
 
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 console.log(allTokens);
-console.log(allTokens[3][2]);
+console.log(allTokens[1][2][0][3]);
 
