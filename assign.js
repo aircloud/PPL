@@ -431,6 +431,15 @@ function tokenizer(input, token, varRange){
         }
         tokens.push(sets);
     }
+//处理注释
+  else if (sentences[current].match(/^#/)!=null){
+        tokens.push("annotation");
+    }
+    else if (sentences[current].match(/^\"\"\"/)!=null){
+        tokens.push("annotation");
+    }
+
+
     //处理非块语句,普通的赋值和运算【处理复杂变量，处理函数调用
     else {
         //处理三目运算符
