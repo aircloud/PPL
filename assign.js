@@ -306,25 +306,27 @@ function tokenizer(input, token, varRange){
         if (sentences[current].search(/:\s*$/) == ":"){
             return "Illegal FOR";
         }
-        sets = [];
-        sentences0 = sentences[current].replace(/for\(\s*/,"");
-        sentences1=sentences0.replace(/\s*\)\:/,"")
-        sentences2 = sentences1.split(";");
-        for(i=0;i<sentences2.length;i++){
-            sets=[];
-            sentences3 = sentences2[i].split(" ");
-            b = 0;
-            while(b<sentences3.length) {
-                wordmean = sentences3[b];
+       i = 2;
+        while(words[i] != ":"){
 
-                elementClassify(sentences3, b, sets);
-                b++;
+            if(words[i]==';'){
+
+                i++;
+                tokens.push(sets);
+                sets=[];
             }
+            if(words[i]!=')'){
+            i = elementClassify(words, i, sets);
+            }
+            i++;
 
-            tokens.push(sets);
         }
+        tokens.push(sets);
 
 
+
+
+        sets = [];
         //content
         current++;
         while(sentences[current] != undefined && sentences[current][0] == "\t"){
@@ -334,7 +336,6 @@ function tokenizer(input, token, varRange){
         current--;
         tokens.push(sets);
         sets = [];
-
     }
     //处理forin
     else if(words[0]=="for"&&sentences[current].search(/in/)!=-1){
