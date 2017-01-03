@@ -434,10 +434,15 @@ function tokenizer(input, token, varRange){
     }
 //处理注释
   else if (sentences[current].match(/^#/)!=null){
-        tokens.push("annotation");
+       return;
     }
     else if (sentences[current].match(/^\"\"\"/)!=null){
-        tokens.push("annotation");
+
+        if(sentences[current].match(/\"\"\"$/)==null){
+         current++;
+        }
+        else{
+        return;}
     }
 
 
@@ -580,14 +585,15 @@ code = "if a < 1:\n" +
     "\ta = a+2\n" +
     "a --";
  */
-var code = "a[5] = 123\n" +
-    "b[1] = a ==2? 4:6"
+var code = "\"\"\"ddsd"+
+    "\tprint a\n"+
+           "\tpri\"\"\"\n" +
+            "\tprint a";
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 
 console.log(allTokens);
-console.log(allTokens[1][2]);
 
 
