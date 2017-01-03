@@ -70,8 +70,11 @@ token ["print",{string:"a string"},{name:"a"},{name:"b"},{string:"another string
 
 
 
-
 ```
+a[5] = 123;
+token ["var",{['sub',["name","a"],["num",5]],type:"var"},[["num",123]]];
+
+
 a = 123;
 token ["var",{name:"a",type:"var"},[["num",123]]];
 
