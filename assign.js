@@ -10,7 +10,7 @@ var vars = [];
 var functionvars = []
 var prebinaries = ['++', '--', '+=', '-=', '*=', '/=', '%=', '**=', '//='];
 var brackets = [ '(', '[', '{', ')', ']', '}'];
-var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':', ',', '.',
+var binaries = ['+', '-', '*', '/', '%', '**', '//', ';', ':', ',', '.', '?',
     '(', ')', '[', ']', '{', '}',
     '==', '!=', '<>', '>', '<', '>=', '<=', '=',
     '+=', '-=', '*=', '/=', '%=', '**=', '//=', '++', '--',
@@ -444,7 +444,7 @@ function tokenizer(input, token, varRange){
     //处理非块语句,普通的赋值和运算【处理复杂变量，处理函数调用
     else {
         //处理三目运算符
-        if(words.indexOf("?") != -1 && words.indexOf("=") == 1){
+        if(words.indexOf("?") != -1 && words.indexOf("=") != -1 && words.indexOf(":") != -1){
             tokens.push("conditionAssign");
             if (varRange.indexOf(words[0]) == -1) {
                 tokens.push({name: words[0], type: "var"});
@@ -454,6 +454,10 @@ function tokenizer(input, token, varRange){
             }
             subsets = [];
             i = 2;
+            if (words[1] == "[" && words[3] == "]"){
+                tokens[1].name = ['sub', ["name", words[0]], ["num", parseInt(words[2])]];
+                i = 5;
+            }
             while(words[i] != "?"){
                 i = elementClassify(words, i, subsets);
                 i++;
@@ -475,29 +479,32 @@ function tokenizer(input, token, varRange){
             tokens.push(sets);
         }
         //普通的单行赋值语句
-        else if( words.indexOf("=") == 1 ){
+        else if( words.indexOf("=") != -1 ){
+            var equal = 2;
             //好烦，不想考虑字符串里有“=”的情况
             //if (input.match("=").length != input.match(/\"\w*=\w*\"/).length) {
-            if (input.search("=") != -1 || words.indexOf("=") != -1){
-                if (varRange.indexOf(words[0]) == -1) {
-                    varRange.push(words[0]);
-                    tokens.push("var");
-                    tokens.push({name: words[0], type: "var"});
-                }
-                else {
-                    tokens.push("assign");
-                    tokens.push({name: words[0], type: "assign"});
-                }
+            if (varRange.indexOf(words[0]) == -1) {
+                varRange.push(words[0]);
+                tokens.push("var");
+                tokens.push({name: words[0], type: "var"});
+            }
+            else {
+                tokens.push("assign");
+                tokens.push({name: words[0], type: "assign"});
+            }
+            if (words[1] == "[" && words[3] == "]"){
+                tokens[1].name = ['sub', ["name", words[0]], ["num", parseInt(words[2])]];
+                equal = 5;
             }
             //处理等号后的部分
             //Tuple特殊处理,感觉可能不太对【没有处理完
-            if (words[2]  == "(" && words.indexOf(",") != -1) {
+            if (words[equal]  == "(" && words.indexOf(",") != -1) {
                 i = 3;
                 tokens[1].type = "const";
                 i = arrayClassify("array", ")", words ,i ,sets);
             }
             else {
-                for (i = 2; i < words.length; i++) {
+                for (i = equal; i < words.length; i++) {
                     i = elementClassify(words, i, sets);
                 }
             }
@@ -561,8 +568,6 @@ code = "fun1();\n" +
     "fun2(2,a)\n" +
     "a.pop()\n" +
     "a.push(3,4)"
- */
-
 code = "if a < 1:\n" +
     "\ta++\n" +
     "if b == 1:\n" +
@@ -574,14 +579,15 @@ code = "if a < 1:\n" +
     "else:\n" +
     "\ta = a+2\n" +
     "a --";
-
+ */
+var code = "a[5] = 123\n" +
+    "b[1] = a ==2? 4:6"
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
-
 }
 
 console.log(allTokens);
-console.log(allTokens[1][2][0]);
+console.log(allTokens[1][2]);
 
 
