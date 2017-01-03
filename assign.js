@@ -276,7 +276,6 @@ function tokenizer(input, token, varRange){
         //else and elif
         var sentence = sentences[current].replace(/^\s*/, "");
         while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount && sentence.substr(0,2) == "el"){
-            sentence = sentences[current].replace(/^\s*/, "");
             if ( sentence.search(/:\s*$/) == -1){
                 current --;
                 return "Illegal ELSE ";
@@ -285,6 +284,7 @@ function tokenizer(input, token, varRange){
                 sentences[current] = sentences[current].replace("elif", "if");
                 tokenizer(sentences[current], sets, vars);
                 current ++;
+                sentence = sentences[current].replace(/^\s*/, "");
             }
             else if(sentence.substr(2,2) == "se"){
                 current++;
@@ -292,6 +292,7 @@ function tokenizer(input, token, varRange){
                 while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount){
                     tokenizer(sentences[current], sets, vars);
                     current ++;
+                    sentence = sentences[current].replace(/^\s*/, "");
                 }
                 tabcount--;
             }
@@ -571,12 +572,16 @@ code = "if a < 1:\n" +
     "\telse:\n" +
     "\t\t b = a+2\n" +
     "else:\n" +
-    "\ta = a+2";
+    "\ta = a+2\n" +
+    "a --";
 
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
+
 }
+
 console.log(allTokens);
-console.log(allTokens[1][2][0][3]);
+console.log(allTokens[1][2][0]);
+
 
