@@ -562,21 +562,5 @@ code = "fun1();\n" +
     "a.push(3,4)"
  */
 
-code = "if a < 1:\n" +
-    "\ta++\n" +
-    "if b == 1:\n" +
-    "\tif c ==1:\n" +
-    "\t\t b++\n" +
-    "\telif c ==2:\n" +
-    "\telse:\n" +
-    "\t\t b = a+2\n" +
-    "else:\n" +
-    "\ta = a+2";
 
-sentences = code.split("\n");
-for (current = 0; current < sentences.length; current++){
-    tokenizer(sentences[current], allTokens, vars);
-}
-console.log(allTokens);
-console.log(allTokens[1][2][0][3]);
 
