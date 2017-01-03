@@ -97,10 +97,10 @@ function elementClassify(words, index, set){
                 index += 2;
                 index = arrayClassify("call", ")", words, index, set);
                 if (dot == 0) {
-                    set[0].splice(1, 0, ['name', funname]);
+                    set[set.length - 1].splice(1, 0, ['name', funname]);
                 }
                 else{
-                    set[0].splice(1, 0, ["dot",["name", varname], funname]);
+                    set[set.length - 1].splice(1, 0, ["dot",["name", varname], funname]);
                 }
             }
         }
@@ -308,10 +308,9 @@ function tokenizer(input, token, varRange){
             return "Illegal FOR";
         }
         i = 2;
+        /*
         while(words[i] != ":"){
-
             if(words[i]==';'){
-
                 i++;
                 i = elementClassify(words, i, sets);
                 tokens.push(sets);
@@ -321,20 +320,53 @@ function tokenizer(input, token, varRange){
                 i = elementClassify(words, i, sets);
             }
             i++;
-
+        }*/
+        var sentence = [];
+        var prei = i;
+        //初始
+        while(words[i] != ";"){
+            sentence.push(words[i]);
+            i++;
+        }
+        if(i == prei){
+            tokens.push([]);
+        }
+        else {
+            tokenizer(sentence.join(""), tokens, vars);
+        }
+        sentence = [];
+        i++;
+        //比较
+        sets = [];
+        while(words[i] != ";"){
+            i = elementClassify(words, i, sets);
+            i++;
         }
         tokens.push(sets);
-
-
-
-
         sets = [];
+        i++;
+        //末处理
+        prei = i;
+        while(words[i] != ")"){
+            sentence.push(words[i]);
+            i++;
+        }
+        if(i == prei){
+            tokens.push([]);
+        }
+        else {
+            tokenizer(sentence.join(""), tokens, vars);
+        }
+        sentence = "";
+        i++;
         //content
         current++;
-        while(sentences[current] != undefined && sentences[current][0] == "\t"){
+        tabcount ++;
+        while(sentences[current] != undefined && confirmTab(sentences[current]) == tabcount){
             tokenizer(sentences[current], sets, vars);
             current ++;
         }
+        tabcount --;
         current--;
         tokens.push(sets);
         sets = [];
@@ -594,4 +626,6 @@ for (current = 0; current < sentences.length; current++){
 }
 
 console.log(allTokens);
+console.log(allTokens[0]);
+console.log(allTokens[0][2]);
 
