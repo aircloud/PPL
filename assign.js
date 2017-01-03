@@ -307,17 +307,18 @@ function tokenizer(input, token, varRange){
         if (sentences[current].search(/:\s*$/) == ":"){
             return "Illegal FOR";
         }
-       i = 2;
+        i = 2;
         while(words[i] != ":"){
 
             if(words[i]==';'){
 
                 i++;
+                i = elementClassify(words, i, sets);
                 tokens.push(sets);
                 sets=[];
             }
             if(words[i]!=')'){
-            i = elementClassify(words, i, sets);
+                i = elementClassify(words, i, sets);
             }
             i++;
 
@@ -585,15 +586,12 @@ code = "if a < 1:\n" +
     "\ta = a+2\n" +
     "a --";
  */
-var code = "\"\"\"ddsd"+
-    "\tprint a\n"+
-           "\tpri\"\"\"\n" +
-            "\tprint a";
+var code = "for(i=3;a<4;i=i+1):\n"+
+      "\tprint a";
 sentences = code.split("\n");
 for (current = 0; current < sentences.length; current++){
     tokenizer(sentences[current], allTokens, vars);
 }
 
 console.log(allTokens);
-
 
