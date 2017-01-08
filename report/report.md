@@ -110,7 +110,7 @@
 
 #### 生成token
 *打印字符串
-` print "a string";
+`print "a string";`
 
 token ["print",{string:"a string"}]`
 <!--这里就把github上的内容整理一下,放过来,越多越好....-->
