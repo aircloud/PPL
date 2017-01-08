@@ -109,13 +109,319 @@
 <!--扯一扯...多写几句-->
 
 #### 生成token
-*打印字符串
-`print "a string";`
+* 打印字符串  
+ 
+```
+print "a string";
 
-token ["print",{string:"a string"}]`
-<!--这里就把github上的内容整理一下,放过来,越多越好....-->
+token ["print",{string:"a string"}]
 
-#### AST树
+```
+
+* 打印变量
+
+
+```
+print a;
+
+token ["print",{name:"a"}]
+
+```
+
+* 打印多个变量或者变量加字符串
+
+```
+print "a string",a,b,"another string"
+token ["print",{string:"a string"},{name:"a"},{name:"b"},{string:"another string"}]
+
+```
+---
+<div style="background:rgba(0,255,0,0.2)">
+
+* 基本赋值语句    
+(js在声明的时候要用"var"来声明，我们做的时候要考虑这一点，第一次出现的时候是声明，其他的时候是赋值，   
+也就是说，第一次使用这个变量的话要用var，如果不是第一次使用了要用assign。(第二部分要重复声明一遍，这不是重复，是为了和其他赋值方式保持统一统一处理))
+
+
+
+```
+a[5] = 123;
+token ["var",{['sub',["name","a"],["num",5]],type:"var"},[["num",123]]];
+
+
+a = 123;
+token ["var",{name:"a",type:"var"},[["num",123]]];
+
+
+//声明之后然后给它赋值
+a = 456
+token ["assign",{name:"a",type:"assign"},[["num",456]]]
+
+//如果是字符串道理相同：
+
+a = "a string";
+token ["assign",{name:"a",type:"assign"},[["string","a string"]]]
+
+//声明之后然后给它赋值
+a = "another string"
+token ["assign",{name:"a",type:"assign"},[["string","another string"]]]
+
+```
+
+* 语句的基本运算   
+这里的基本运算涉及数字之间的四则运算，以及和变量之间的四则运算，直接举例：
+
+```
+
+a = 3 + 5 - 6 * 2;
+token ["assign",{name:"a",type:"assign"},[["num",3],["binary","+"],["num",5],["binary","-"],["num",6],["binary","*"],["num",2]]]
+//请仔细注意，这里的token和前面有所区分
+
+b = 6;
+//这里的token前面写过了，就不重复了
+
+a = b + 2;
+token ["assign",{name:"a",type:"assign"},[["name","b"],["binary","+"],["num",5]]
+
+a = 3 * (4 + 5);
+token ["assign",{name:"a",type:"assign"},[["num",3],["binary","*"],['binary',"("],["num",4],["binary","+"],["num",5],['binary',")"]]]
+//这是一个带括号的，一般也是只会产生小括号，中括号和大括号应该是没有的
+
+```
+
+<div style="background:rgba(255,255,255,1)">
+
+
+---
+
+* 自增、自减运算符    
+对于i++、i--这种的，实际上是独立的语句块，我们解析的时候，首先把它转化成i=i+1和i=i-1再用上面的规则解析，就不重新定义规则了。
+
+* 三目运算符  
+三目运算符通常只有一行，但是也有点复杂，应该这样分：也是一开始一个标志符，之后是被赋值的目标，之后是一个三个元素的数组，三个元素分别是：判断条件、前一个代码块，后一个代码块,这里面的前一个代码块和后一个代码块通常是算式,需要按上面解析语句基本运算的方式去解析。
+
+```
+a = b > 2 ? 3 : 4;
+token ["conditionAssign",{name:"a",type:"assign"},[
+ [["name","b"],["binary",">"],["num",2]],
+ [
+ 	["num",3]
+ ]
+ [
+ 	["num",4]
+ ]
+]]
+
+//如果是第一次出现，type的assign应该改成“var”
+```
+
+
+* 语句块：if else      
+我们的最基本的if else应该是这样的：整个if else语句块虽然占多行，但是应该写在一个token里，这算一整块，解析AST树的时候这也应该在一个节点下面。
+
+```
+if(a<1){
+    a = 2;
+    a = 3;
+}
+else{
+    a = 0;
+}
+
+//这里的token有四块内容，依次是：标志符"if"，判断的内容，if里面的内容，else里面的内容，if里面的内容和else里的内容实际上比较复杂，因为是一个语句块，之后解析的话可能很多个token组成一个token数组，来表示这个语句块，所以这里面要用一个函数的递归
+
+token ["if",
+[["name","a"],["binary","<"],["num",1]],
+[
+      ["assign",{name:"a",type:"assign"},[["num",2]]],
+      ["assign",{name:"a",type:"assign"},[["num",3]]]
+],[
+	  ["assign",{name:"a",type:"assign"},[["num",0]]]
+]]
+
+带有elif的：相当于 if(){...}else{if(){...}else{...}} elif相当于语法糖
+
+if(a<1){
+    a = 2;
+    a = 3;
+}
+elif(a>3){
+    a=5;
+}
+else{
+    a = 0;
+}
+
+token :
+["if",
+[["name","a"],["binary","<"],["num",1]],
+[
+      ["assign",{name:"a",type:"assign"},[["num",2]]],
+      ["assign",{name:"a",type:"assign"},[["num",3]]]
+],[
+
+	["if",
+	[["name","a"],["binary",">"],["num",3]],
+	[
+	      ["assign",{name:"a",type:"assign"},[["num",5]]]
+	],[
+		  ["assign",{name:"a",type:"assign"},[["num",0]]]
+	]]
+
+]]
+
+
+```
+
+* 语句块：for循环    
+for 循环是一个涵盖多行的语句块，也是写在一个大的token里，也可能用到函数递归，甚至for循环里还有if/else等其他语句块。
+
+```
+for(i = 0;i<4;i++):
+    print("abc");
+    print("def");
+
+
+//这里的token应该有五项内容，分别是：标志符"for“，for循环判断条件里的三块内容[这里我们默认每一个块只有一句话，也就是只有一个token(其实判断语句根本不是一个独立的句子，这里稍微扩展了一下概念)]，语句块内容。
+
+token ["for",
+["assign",{name:"i",type:"assign"},[["num",0]]],
+[["name","i"],["binary","<"],["num",1]],
+["assign",{name:"i",type:"assign"},[["name","i"],["binary","+"],["num",1]]],
+[
+	["print",{string:"abc"}],
+	["print",{string:"def"}]
+]]
+
+
+增加：实际上python的for循环不应该是这样子，但是我们自己的python版本出于之后的演示方便，应该把上面的实现，然后对于不是上面的，主要有以下几种:
+
+[py有规定，这里我们遵守：in 前面只能有一个变量，in后面的各种形式下面已经列出]
+
+for i in range(100)
+   a = 2;
+   a = 3;
+   
+token["forin",["name","i"],
+["call",["name","range"], [["num",100]] ],
+[
+  //语句块内容省略
+]
+]
+   
+for i in range(50,100)
+   a = 2;
+   a = 3;
+   
+token["forin",["name","i"],
+["call",["name","range"], [["num",50],["num",100]]],
+[
+  //语句块内容省略
+]
+]
+   
+for x in [ 2, 3, 4, 5]:
+	a = a + x;
+
+token 	["forin",["name","x"],
+["array",[["num",2],["num",3],["num",4],["num",5]]],
+[
+  //语句块内容省略
+]
+]
+
+for x in sv   //注: sv是某一个类似list的变量
+   a = a + x;
+   //或者 a = a + sv[x]
+
+token 	["forin",["name","x"],
+["name","sv"],
+[
+  //语句块内容省略
+]
+]
+
+
+```
+ 
+* 语句块 while循环    
+
+```
+while(i<6){
+    i++;
+}
+
+//这里的token有三项内容，分别是"while"标志符，判断条件，默认是一条语句，可能有好多内容...
+
+token ["while",
+[["name","i"],["binary","<"],["num",6]],
+[
+ ["assign",{name:"i",type:"assign"},[["name","i"],["binary","+"],["num",1]]]
+]]
+```
+
+* 函数    
+函数本身的声明部分，对于转化成token应该是不难的，但是函数应当设计一个局部作用域的问题，这个是从token到AST树的生成都要考虑的问题，前面讲过的“var”和“assign”，也就是说，在解析函数的时候，应该生成一个局部变量列表。
+
+这里进行一个举例
+
+```
+x = 50
+def func(x,y):
+    print('x等于', x)
+    x = 2
+    print('局部变量x改变为', x)
+    return x
+    
+//函数的token分为这几部分：函数标志符号 “defun” 、函数名、变量数组、语句块
+
+token [
+"defun",
+{name:"func"},
+["x","y"],
+[
+	["print",{string:"x等于"},{name:"x"}],
+	["var",{name:"x",type:"var"},[["num",2]]],
+	["print",{string:"局部变量x改变为"},{name:"x"}],
+	["return",[["name","x"]]]
+]]
+
+//注意：函数里面局部变量的改变，不影响全局变量
+```
+
+* 函数调用   
+函数调用本身是一个表达式或者一个表达式的一部分，我们在这里把函数当作一等公民(简单地理解一等公民的意思，就是函数调用可以像变量一样到处使用)
+
+函数调用的标志符是"call"
+
+以下是具体例子：
+
+```
+
+f1(3,4,5);
+token ["call",["name","f1"], [["num",3],["num",4],["num",5]]]
+
+var d = f1(3,4,5) + 2;
+token ["advanceAssign",
+{name:"d",type:"var"},
+["call",["name","f1"], [["num",3],["num",4],["num",5]]],
+["binary","+"],
+["num",5]
+]
+
+a = b > 2 ? 3 : f1(3,4,5);
+token ["conditionAssign",{name:"a",type:"assign"},[
+ [["name","b"],["binary",">"],["num",2]],
+ [
+ 	["num",3]
+ ],
+ [
+ 	["call", [name,"f1"], [["num",3],["num",5]] ]
+ ]
+]]
+
+```
+
 
 AST树在js中实际上是一个非常复杂的数组，我们根据生成的token不同不同类型采用了不同的处理方式。这里我对个别重点进行解释：
 
